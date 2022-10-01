@@ -11,8 +11,10 @@
     (let [data (csv/read-csv file :separator \tab)]
       (->>
        (kg/csv->map data)
-       (map #(assoc % :source_id (str/join ["ORPHA:" (:id %)])))
-       (map #(assoc % :id (str/join ["ORPHANET_" (:id %)])))
+       (filter #(some? (:id %)))
+       (filter #(not= (:id %) ""))
+       (map #(assoc % :id (last (str/split (:id %) #"/"))))
+       (map #(assoc % :id (str/upper-case (:id %))))
        (map #(assoc % :label "ORPHANET"))
        (map #(assoc % :source "ORPHANET"))
        (mapv #(select-keys % [:id :label :name :source_id :source]))

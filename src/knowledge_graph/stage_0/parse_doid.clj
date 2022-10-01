@@ -2,8 +2,7 @@
   (:require
    [clj-http.client :as client]
    [clojure.data.xml :as d-xml]
-   [clojure.data.zip.xml :refer [attr text xml-> xml1->]]
-   [clojure.string :as str]
+   [clojure.data.zip.xml :refer [attr text xml->]]
    [clojure.zip :as z]
    [knowledge-graph.module.module :as kg]))
 
