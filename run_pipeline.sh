@@ -1,4 +1,7 @@
 #!bin/zsh
+echo "PREPROCESSING UMLS DATA"
+python3 ./scripts/process_umls.py
+
 echo "###################################"
 echo "STARTING STAGE 0"                 
 echo "###################################"
