@@ -13,7 +13,6 @@
     (str/includes? id "_") (str/replace id "_" ":")
     :else id))
 
-
 (defn get-synonyms-from-ontology
   ([file-path id] (get-synonyms-from-ontology file-path id :synonym))
   ([file-path id synonym]
@@ -27,7 +26,6 @@
            (map #(set/rename-keys % {synonym  :end}))
            (mapv #(select-keys % [:start :end]))
            distinct)))))
-
 
 (defn get-nodes
   [node-file-path]
@@ -48,9 +46,7 @@
        efo_synonym (get-synonyms-from-ontology "stage_0_outputs/efo.csv" :id)
        hpo_synonym (get-synonyms-from-ontology "stage_0_outputs/hpo.csv" :id)
        mondo_synonym (get-synonyms-from-ontology "stage_0_outputs/mondo.csv" :id)
-       orphanet_synonym (->> (get-synonyms-from-ontology "stage_0_outputs/orphanet.csv" :id)
-                             (map  #(assoc % :start (str/join ":" ["ORPHA" (:start %)])))
-                             (mapv #(select-keys % [:start :end])))
+       orphanet_synonym (->> (get-synonyms-from-ontology "stage_0_outputs/orphanet.csv" :source_id))
        mesh_desc_synonym (get-synonyms-from-ontology "stage_0_outputs/mesh_descriptor.csv" :id)
        mesh_scr_synonym (get-synonyms-from-ontology "stage_0_outputs/mesh_scr.csv" :id)
        icd9_synonym (get-synonyms-from-ontology "stage_0_outputs/icd9.csv" :id :short_label) 
