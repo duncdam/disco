@@ -2,6 +2,7 @@
   (:require
    [clojure.java.io :as io]
    [clojure.data.csv :as csv]
+   [clojure.set :as set]
    [knowledge-graph.module.module :as kg]))
 
 (defn load-disease
@@ -26,9 +27,7 @@
         orphanet (load-disease "stage_1_outputs/orphanet_nodes.csv")
         snomedct (load-disease "stage_1_outputs/snomedct_nodes.csv")
         umls (load-disease "stage_1_outputs/umls_nodes.csv")
-        disease-nodes (concat doid efo hpo icd9 icd10 meddra medgen mesh mondo ncit orphanet snomedct umls)
-        ]
-        (->>
-          (distinct disease-nodes)
-          (kg/write-csv [:id :label :name :source_id :source] "./resources/stage_1_outputs/disease_nodes.csv"))))
+        disease-nodes (concat doid efo hpo icd9 icd10 meddra medgen mesh mondo ncit orphanet snomedct umls)]
+        (->>(distinct disease-nodes)
+            (kg/write-csv [:id :label :name :source_id :source] "./resources/stage_1_outputs/disease_nodes.csv"))))
 
