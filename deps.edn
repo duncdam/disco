@@ -9,7 +9,6 @@
     clj-http/clj-http {:mvn/version "3.12.3"}
     camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
     org.clojure/tools.logging {:mvn/version "1.2.4"}
-    listora/uuid {:mvn/version "0.1.2"}
   }
   :aliases {
     :stage-0 {:main-opts ["-m" "knowledge-graph.stage-0.launch-stage-0"]}
