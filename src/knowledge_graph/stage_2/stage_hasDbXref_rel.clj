@@ -9,29 +9,29 @@
 (defn value-by-source
   [xref-source]
   (cond
-    (str/includes? (str/lower-case xref-source) "doid") (str/replace xref-source "DOID:" "DOID_")
-    (str/includes? (str/lower-case xref-source) "efo") (str/replace xref-source "EFO:" "EFO_")
-    (str/includes? (str/lower-case xref-source) "hpo") (str/replace xref-source "HPO:" "HP_")
-    (str/includes? (str/lower-case xref-source) "hp") (str/replace xref-source "HP:" "HP_")
-    (str/includes? (str/lower-case xref-source) "mondo") (str/replace xref-source "MONDO:" "MONDO_")
-    (str/includes? (str/lower-case xref-source) "icd09cm") (str/replace xref-source "ICD9:" "ICD9_")
-    (str/includes? (str/lower-case xref-source) "icd9") (str/replace xref-source "ICD9CM:" "ICD9_")
-    (str/includes? (str/lower-case xref-source) "icd10cm") (str/replace xref-source "ICD10CM:" "ICD10_")
-    (str/includes? (str/lower-case xref-source) "icd10") (str/replace xref-source "ICD10CM:" "ICD10_")
-    (str/includes? (str/lower-case xref-source) "icd-10") (str/replace xref-source "ICD-10:" "ICD10_")
-    (str/includes? (str/lower-case xref-source) "msh") (str/replace xref-source "MSH:" "MESH_")
-    (str/includes? (str/lower-case xref-source) "mesh") (str/replace xref-source "MESH:" "MESH_")
-    (str/includes? (str/lower-case xref-source) "mesh") (str/replace xref-source "MeSH:" "MESH_")
-    (str/includes? (str/lower-case xref-source) "umls_cui") (str/replace xref-source "UMLS_CUI:" "UMLS_")
-    (str/includes? (str/lower-case xref-source) "umls") (str/replace xref-source "UMLS:" "UMLS_")
-    (str/includes? (str/lower-case xref-source) "snomedct_us_2021_09_01") (str/replace xref-source "SNOMEDCT_US_2021_09_01:" "SNOMEDCT_")
-    (str/includes? (str/lower-case xref-source) "snomedct_us") (str/replace xref-source "SNOMEDCT_US:" "SNOMEDCT_")
-    (str/includes? (str/lower-case xref-source) "sctid") (str/replace xref-source "SCTID:" "SNOMEDCT_")
-    (str/includes? (str/lower-case xref-source) "snomedct") (str/replace xref-source "SNOMEDCT:" "SNOMEDCT_")
-    (str/includes? (str/lower-case xref-source) "ncit") (str/replace xref-source "NCIT:" "NCI_")
-    (str/includes? (str/lower-case xref-source) "nci") (str/replace xref-source "NCI:" "NCI_")
-    (str/includes? (str/lower-case xref-source) "orphanet") (str/replace xref-source "Orphanet:" "ORPHANET_")
-    (str/includes? (str/lower-case xref-source) "meddra") (str/replace xref-source "MedDRA:" "MEDDRA_")
+    (str/includes? xref-source "DOID") (str/replace xref-source "DOID:" "DOID_")
+    (str/includes? xref-source "EFO") (str/replace xref-source "EFO:" "EFO_")
+    (str/includes? xref-source "HPO") (str/replace xref-source "HPO:" "HP_")
+    (str/includes? xref-source "HP") (str/replace xref-source "HP:" "HP_")
+    (str/includes? xref-source "MONDO") (str/replace xref-source "MONDO:" "MONDO_")
+    (str/includes? xref-source "ICD9CM") (str/replace xref-source "ICD9:" "ICD9_")
+    (str/includes? xref-source "ICD9") (str/replace xref-source "ICD9CM:" "ICD9_")
+    (str/includes? xref-source "ICD10CM") (str/replace xref-source "ICD10CM:" "ICD10_")
+    (str/includes? xref-source "ICD10") (str/replace xref-source "ICD10CM:" "ICD10_")
+    (str/includes? xref-source "ICD-10") (str/replace xref-source "ICD-10:" "ICD10_")
+    (str/includes? xref-source "MeSH") (str/replace xref-source "MeSH:" "MESH_")
+    (str/includes? xref-source "MSH") (str/replace xref-source "MSH:" "MESH_")
+    (str/includes? xref-source "MESH") (str/replace xref-source "MESH:" "MESH_")
+    (str/includes? xref-source "UMLS_CUI") (str/replace xref-source "UMLS_CUI:" "UMLS_")
+    (str/includes? xref-source "UMLS") (str/replace xref-source "UMLS:" "UMLS_")
+    (str/includes? xref-source "SNOMEDCT_US_2021_09_01") (str/replace xref-source "SNOMEDCT_US_2021_09_01:" "SNOMEDCT_")
+    (str/includes? xref-source "SNOMEDCT_US") (str/replace xref-source "SNOMEDCT_US:" "SNOMEDCT_")
+    (str/includes? xref-source "SCTID") (str/replace xref-source "SCTID:" "SNOMEDCT_")
+    (str/includes? xref-source "SNOMEDCT") (str/replace xref-source "SNOMEDCT:" "SNOMEDCT_")
+    (str/includes? xref-source "NCIT") (str/replace xref-source "NCIT:" "NCI_")
+    (str/includes? xref-source "NCI") (str/replace xref-source "NCI:" "NCI_")
+    (str/includes? xref-source "Orphanet") (str/replace xref-source "Orphanet:" "ORPHANET_")
+    (str/includes? xref-source "MedDRA") (str/replace xref-source "MedDRA:" "MEDDRA_")
     :else xref-source
   ))
 
@@ -117,17 +117,6 @@
         (->> (concat ncit->meddra ncit->neoplasm ncit->umls)
              distinct)))
 
-(defn orphanet-Xref
-  [orphanet-file-path]
-  (with-open [o-file (io/reader (io/resource orphanet-file-path))]
-    (let [data (csv/read-csv o-file :separator \tab)]
-      (->> (kg/csv->map data)
-           (map #(assoc % :ref_source_id (str/replace (:ref_source_id %) "." "")))
-           (map #(assoc % :start (str/join "_" ["ORPHANET" (:id %)])))
-           (map #(assoc % :end (construct_by_source (:ref_source %) (:ref_source_id %))))
-           (mapv #(select-keys % [:start :end]))
-           distinct))))
-
 (defn snomed<->icd10-Xref
   [snomed-icd10-file-path]
   (with-open [s-file (io/reader (io/resource snomed-icd10-file-path))]
@@ -163,10 +152,11 @@
         efo-dbXref (hasDbXref "stage_0_outputs/efo.csv")
         hpo-dbXref (hasDbXref "stage_0_outputs/hpo.csv")
         mondo-dbXref (hasDbXref "stage_0_outputs/mondo.csv")
+        orphanet-dbXref (->> (hasDbXref "stage_0_outputs/orphanet.csv")
+                             (mapv #(assoc % :start (str/upper-case (:start %)))))
         icd9<->icd10 (ic9->icd10-Xref "stage_0_outputs/icd9_icd10_mapping.csv")
         medgen-dbXref (medgen-Xref "stage_0_outputs/medgen_id_mapping.csv")
         ncit-dbXref (ncit-Xref "stage_0_outputs/ncit_meddra_mapping.csv" "stage_0_outputs/ncit_neoplasm_mapping.csv")
-        orphanet-dbXref (orphanet-Xref "stage_0_outputs/orphanet.csv")
         snomed<->icd10 (snomed<->icd10-Xref "stage_0_outputs/snomedct_icd10.csv")
         umls-dbXref (umls-Xref "stage_0_outputs/umls.csv")
         dbXref (distinct (concat doid-dbXref efo-dbXref hpo-dbXref mondo-dbXref icd9<->icd10 
