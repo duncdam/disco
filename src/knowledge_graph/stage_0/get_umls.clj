@@ -1,6 +1,5 @@
 (ns knowledge-graph.stage-0.get-umls
   (:require
-   [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.string :as str]
