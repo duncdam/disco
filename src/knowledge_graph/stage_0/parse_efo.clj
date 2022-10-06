@@ -17,7 +17,7 @@
           dbXref         (xml-> z :Class :hasDbXref text)
           synonym        (concat (xml-> z :Class :hasExactSynonym text) (xml-> z :Class :hasRelatedSynonym text))
           is_disease     (xml-> z :Class :inSubset (attr :rdf/resource))]
-          {:id id :label label :subClassOf subClassOf :dbXref dbXref :synonym synonym :is_disease is_disease})))
+          {:id id :label label :subClassOf subClassOf :hasDbXref dbXref :synonym synonym :is_disease is_disease})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -31,10 +31,13 @@
        (apply concat)
        (filter #(some? (:id %)))
        (filter #(or (str/includes? (:is_disease %) "disease") (str/includes? (:is_disease %) "disorder") (str/includes? (:is_disease %) "syndrome")))
+       (map #(assoc % :id (last (str/split (:id %) #"/"))))
+       (filter #(str/includes? (:id %) "EFO_"))
+       (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
        distinct
-       (kg/write-csv [:id :label :subClassOf :dbXref :synonym] output_path)))
+       (kg/write-csv [:id :label :subClassOf :hasDbXref :synonym] output_path)))
 
-(defn run []
+(defn run [_]
   (let [url "https://github.com/EBISPOT/efo/releases/download/current/efo.owl"
         output "./resources/stage_0_outputs/efo.csv"]
     (get-results url output)))

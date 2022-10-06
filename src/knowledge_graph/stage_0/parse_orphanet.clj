@@ -16,7 +16,7 @@
           dbXref (xml-> z :Class :hasDbXref text)
           synonym (xml-> z :Class :alternative_term text)
           source_id (xml-> z :Class :notation text)]
-      {:id id :name name :subClassOf subClassOf :dbXref dbXref :synonym synonym :source_id source_id})))
+      {:id id :name name :subClassOf subClassOf :hasDbXref dbXref :synonym synonym :source_id source_id})))
 
 (defn get-orphanet
   [url output-path]
@@ -29,10 +29,12 @@
    (map orphanet-map)
    (apply concat)
    (filter #(not= (str/lower-case (:source_id %)) "clinical subtype"))
+   (map #(assoc % :id (str/upper-case (last (str/split (:id %) #"/")))))
+   (map #(assoc % :subClassOf (str/upper-case (last (str/split (:subClassOf %) #"/")))))
    distinct
-   (kg/write-csv [:id :name :subClassOf :dbXref :synonym :source_id] output-path)))
+   (kg/write-csv [:id :name :subClassOf :hasDbXref :synonym :source_id] output-path)))
 
-(defn run[]
+(defn run[_]
   (let [url "https://www.orphadata.com/data/ontologies/ordo/last_version/ORDO_en_4.1.owl"
         output-path-orphanet "./resources/stage_0_outputs/orphanet.csv"]
     (get-orphanet url output-path-orphanet)))

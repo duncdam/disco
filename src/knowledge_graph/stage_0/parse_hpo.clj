@@ -17,7 +17,7 @@
           subClassOf  (xml-> z :Class :subClassOf (attr :rdf/resource))
           dbXref      (xml-> z :Class :hasDbXref text)
           synonym     (concat (xml-> z :Class :hasExactSynonym text) (xml-> z :Class :hasRelatedSynonym text) )]
-          {:id id :label label :alternative_id alternative_id :subClassOf subClassOf :dbXref dbXref :synonym synonym})))
+          {:id id :label label :alternative_id alternative_id :subClassOf subClassOf :hasDbXref dbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -32,11 +32,13 @@
    (apply concat)
    (filter #(some? (:id %)))
    (filter #(str/includes? (:id %) "HP_"))
+   (map #(assoc % :id (last (str/split (:id %) #"/"))))
+   (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
    distinct
-   (kg/write-csv [:id :label :alternative_id :subClassOf :dbXref :synonym] output_path)
+   (kg/write-csv [:id :label :alternative_id :subClassOf :hasDbXref :synonym] output_path)
   ))
 
-(defn run []
+(defn run [_]
   (let [url "http://purl.obolibrary.org/obo/hp.owl"
         output "./resources/stage_0_outputs/hpo.csv"]
     (get-results url output)))
