@@ -17,18 +17,21 @@
      kg/csv->map)))
 
 (defn get-results
-  [output-path]
-  (let [icd9-long  (->> (file->map "icd9/icd9_long_desc.txt")
+  [long-file-path short-file-path output-path]
+  (let [icd9-long  (->> (file->map long-file-path)
                         (map #(set/rename-keys % {:label :long_label})))
-        icd9-short (->> (file->map "icd9/icd9_short_desc.txt")
+        icd9-short (->> (file->map short-file-path)
                         (map #(set/rename-keys % {:label :short_label})))]
 
     (->>
      (kg/joiner icd9-long icd9-short :id :id kg/left-join)
      (filter #(some? (:id %)))
-     (kg/write-csv [:id :short_label :long_label] output-path))))
+     (map #(set/rename-keys % {:long_label :label :short_label :synonym}))
+     (kg/write-csv [:id :label :synonym] output-path))))
 
 (defn run
-  []
-  (let [output-path "./resources/stage_0_outputs/icd9.csv"]
-    (get-results output-path)))
+  [_]
+  (let [output-path "./resources/stage_0_outputs/icd9.csv"
+        long-file-path "download/CMS32_DESC_LONG_DX.txt"
+        short-file-path "download/CMS32_DESC_SHORT_DX.txt"]
+    (get-results long-file-path short-file-path output-path)))

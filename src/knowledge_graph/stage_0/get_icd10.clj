@@ -17,7 +17,7 @@
      (filter #(some? (:id %)))
      (kg/write-csv [:id :label] output-path))))
 
-(defn run []
+(defn run [_]
   (let [url "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_codes_2022.txt"
         output-path "./resources/stage_0_outputs/icd10.csv"]
     (get-results url output-path)))

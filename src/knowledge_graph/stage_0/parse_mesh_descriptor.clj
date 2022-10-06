@@ -4,6 +4,7 @@
    [clojure.data.xml :as d-xml]
    [clojure.data.zip.xml :refer [text xml-> ]]
    [clojure.string :as str]
+   [clojure.set :as set]
    [clojure.zip :as z]
    [knowledge-graph.module.module :as kg]))
 
@@ -20,19 +21,27 @@
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
   [url output_path]
-  (->> (client/get url {:as :stream})
-       :body
-       (d-xml/parse)
-       :content
-       (filter #(= (:tag %) :DescriptorRecord))
-       (map class-map)
-       (apply concat)
-       (filter #(some? (:id %)))
-       (filter #(str/includes? (:tree_location %) "C"))
-       distinct
-       (kg/write-csv [:id :tree_location :label :synonym] output_path)))
+  (let [mesh-data (->> (client/get url {:as :stream})
+                       :body
+                       (d-xml/parse)
+                       :content
+                       (filter #(= (:tag %) :DescriptorRecord))
+                       (map class-map)
+                       (apply concat)
+                       (filter #(some? (:id %)))
+                       (filter #(str/includes? (:tree_location %) "C"))
+                       distinct)
+        mesh-parent (->> (map #(assoc % :parent_tree_location (str/split (:tree_location %) #"\.")) mesh-data)
+                         (map #(assoc % :parent_tree_location (drop-last (:parent_tree_location %))))
+                         (map #(assoc % :parent_tree_location (str/join "." (:parent_tree_location %))))
+                         (map #(set/rename-keys % {:id :subClassOf}))
+                         (map #(select-keys % [:subClassOf :parent_tree_location])))
+        mesh-des (kg/joiner mesh-data mesh-parent :tree_location :parent_tree_location kg/left-join)]
+        (->> (mapv #(select-keys % [:id :label :synonym :subClassOf]) mesh-des)
+             distinct 
+             (kg/write-csv [:id :label :synonym :subClassOf] output_path))))
 
-(defn run []
+(defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2022.xml"
         output "./resources/stage_0_outputs/mesh_descriptor.csv"]
     (get-results url output)))

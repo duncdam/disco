@@ -14,8 +14,8 @@
     (for [id      (xml-> z :SupplementalRecordUI text)
           label   (xml-> z :SupplementalRecordName text)
           synonym (xml-> z :ConceptList :Concept :TermList :Term :String text)
-          heading_mapped (xml-> z :HeadingMappedToList :HeadingMappedTo :DescriptorReferredTo :DescriptorUI text)]
-      {:id id :label label :synonym synonym :heading_mapped (str/replace heading_mapped "*" "")})))
+          subClassOf (xml-> z :HeadingMappedToList :HeadingMappedTo :DescriptorReferredTo :DescriptorUI text)]
+      {:id id :label label :synonym synonym :subClassOf (str/replace subClassOf "*" "")})))
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
@@ -30,9 +30,9 @@
    (apply concat)
    (filter #(some? (:id %)))
    distinct
-   (kg/write-csv [:id :label :synonym :heading_mapped]  output_path)))
+   (kg/write-csv [:id :label :synonym :subClassOf]  output_path)))
 
-(defn run []
+(defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
         output "./resources/stage_0_outputs/mesh_scr.csv"]
     (get-results url output)))

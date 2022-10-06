@@ -4,6 +4,7 @@
    [clojure.data.xml :as d-xml]
    [clojure.data.zip.xml :refer [attr text xml->]]
    [clojure.zip :as z]
+   [clojure.string :as str]
    [knowledge-graph.module.module :as kg]))
 
 (defn class-map
@@ -14,9 +15,9 @@
           alternative_id (xml-> z :hasAlternativeId text)
           label          (xml-> z :label text)
           subClassOf     (xml-> z :subClassOf (attr :rdf/resource))
-          dbXref         (xml-> z :hasDbXref text)
+          hasDbXref         (xml-> z :hasDbXref text)
           synonym        (xml-> z :hasExactSynonym text)]
-          {:id id :alternative_id alternative_id :label label :subClassOf subClassOf :dbXref dbXref :synonym synonym})))
+          {:id id :alternative_id alternative_id :label label :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -29,9 +30,11 @@
        (map class-map)
        (apply concat)
        (filter #(some? (:id %)))
-       (kg/write-csv [:id :alternative_id :label :subClassOf :dbXref :synonym] output_path)))
+       (map #(assoc % :id (last (str/split (:id %) #"/"))))
+       (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
+       (kg/write-csv [:id :alternative_id :label :subClassOf :hasdDbXref :synonym] output_path)))
 
-(defn run []
+(defn run [_]
   (let [url "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology/doid.owl"
         output "./resources/stage_0_outputs/doid.csv"]
     (get-results url output)))
