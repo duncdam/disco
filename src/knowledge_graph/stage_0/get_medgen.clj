@@ -50,7 +50,7 @@
         fname-name "NAMES.RRF"
         concept-url (str url fname-concept ".gz")
         name-url (str url fname-name ".gz")
-        save-path "./resources/download/"
+        save-path "./resources/downloads/"
         output-path "./resources/stage_0_outputs/medgen.csv"
         file-path-concept (file-path save-path fname-concept)
         file-path-name (file-path save-path fname-name)]
