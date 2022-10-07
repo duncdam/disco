@@ -54,7 +54,6 @@ if [[ ! -d $OUTPUT_PATH ]]; then
   mkdir $OUTPUT_PATH
 fi
 
-
 for URL in $DOWNLOAD_URLS[@]; do 
   FILE=$(echo $URL | rev | cut -d"/" -f 1 | rev)
 
