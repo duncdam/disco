@@ -47,7 +47,7 @@ fi
 
 API_KEY=$(echo $(cat .env | rev |  cut -d"=" -f 1 | rev) )
 
-END_POINT="https://uts-ws.nlm.nih.gov/download"
+NLM_END_POINT="https://uts-ws.nlm.nih.gov/download"
 OUTPUT_PATH=./resources/downloads
 
 if [[ ! -d $OUTPUT_PATH ]]; then
@@ -59,7 +59,7 @@ for URL in $DOWNLOAD_URLS[@]; do
   FILE=$(echo $URL | rev | cut -d"/" -f 1 | rev)
 
   if [[ $URL == *".nlm"* ]]; then
-    curl "$END_POINT?url=$URL&apiKey=$API_KEY" -o $OUTPUT_PATH/$FILE
+    curl "$NLMEND_POINT?url=$URL&apiKey=$API_KEY" -o $OUTPUT_PATH/$FILE
   else 
     curl $URL -o $OUTPUT_PATH/$FILE
   fi
