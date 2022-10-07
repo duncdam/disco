@@ -22,22 +22,22 @@
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
   [url mesh-desc-path output_path]
-  (let [mesh-scr (->> (client/get url {:as :stream})
-                      :body
-                      (d-xml/parse)
-                      :content
-                      (filter #(= (:tag %) :SupplementalRecord))
-                      (map class-map)
-                      (apply concat)
-                      (filter #(some? (:id %)))
-                      distinct)
-        mesh-desc (->> (io/reader (io/resource mesh-desc-path))
-                       csv/read-csv
-                       kg/csv->map
-                       (map #(select-keys % [:id]))
-                       distinct)
-        mesh-scr-disease (kg/joiner mesh-scr mesh-desc :id :id kg/inner-join)]                 
-   (kg/write-csv [:id :label :synonym :subClassOf]  output_path mesh-scr-disease)))
+  (with-open [file (io/reader (io/resource mesh-desc-path))]
+    (let [mesh-scr (->> (client/get url {:as :stream})
+                        :body
+                        (d-xml/parse)
+                        :content
+                        (filter #(= (:tag %) :SupplementalRecord))
+                        (map class-map)
+                        (apply concat)
+                        (filter #(some? (:id %)))
+                        distinct)
+          mesh-desc (->> (csv/read-csv file :separator \tab)
+                         kg/csv->map
+                         (map #(select-keys % [:id]))
+                         distinct)
+          mesh-scr-disease (kg/joiner mesh-scr mesh-desc :subClassOf :id kg/inner-join)]
+      (kg/write-csv [:id :label :synonym :subClassOf]  output_path mesh-scr-disease))))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
