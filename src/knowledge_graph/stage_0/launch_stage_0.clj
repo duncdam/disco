@@ -11,6 +11,7 @@
    [knowledge-graph.stage-0.parse-mesh-scr :as msx]
    [knowledge-graph.stage-0.get-snomedct :as snomedct]
    [knowledge-graph.stage-0.get-ncit :as ncit]
+   [knowledge-graph.stage-0.get-meddra :as meddra]
    [knowledge-graph.stage-0.get-medgen-mapping :as mdm]
    [knowledge-graph.stage-0.get-ncit-mapping :as nnm]
    [knowledge-graph.stage-0.get-snomedct-mapping :as si10]
@@ -40,6 +41,8 @@
   (log/info "finished getting SNOMEDCT")
   (ncit/run '_)
   (log/info "finish getting NCIT")
+  (meddra/run '_)
+  (log/info "finish getting MEDDRA")
   (mdm/run '_)
   (log/info "finished MEDGEN mapping")
   (nnm/run '_)
