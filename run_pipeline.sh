@@ -1,10 +1,17 @@
 #!bin/zsh
-echo "PREPROCESSING UMLS DATA"
-python3 ./scripts/process_umls.py
+echo "###################################"
+echo "DOWNLOADING..."                 
+echo "###################################"
+
+source ./scripts/source_download.sh -s all
 
 echo "###################################"
 echo "STARTING STAGE 0"                 
 echo "###################################"
+
+echo "Preprocessing UMLS data"
+clj -X:umls
+echo "Finished processing UMLS data"
 
 clj -M:stage-0                  
 

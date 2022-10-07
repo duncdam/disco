@@ -5,10 +5,11 @@
    [knowledge-graph.module.module :as kg]))
 
 (defn load-disease
-  [file-path]
+  [file-path source]
   (with-open [file (io/reader (io/resource file-path))]
     (let [data (csv/read-csv file :separator \tab)]
       (->> (kg/csv->map data)
+           (map #(assoc % :source source))
            (mapv #(select-keys % [:id :label :name :source_id :source]))))))
 
 

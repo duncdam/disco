@@ -3,7 +3,6 @@
    [camel-snake-kebab.core :as csk]
    [clj-http.client :as client]
    [clojure.data.csv :as csv]
-   [clojure.set :as set]
    [clojure.string :as str]
    [knowledge-graph.module.module :as kg]))
 

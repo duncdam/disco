@@ -12,5 +12,5 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .cpcache/
-/resources
+/resources/*/*
 .DS_Store
