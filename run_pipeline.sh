@@ -3,7 +3,7 @@ echo "###################################"
 echo "DOWNLOADING..."                 
 echo "###################################"
 
-source ./scripts/source_download.sh -s all
+source ./scripts/source_download.sh
 
 echo "###################################"
 echo "STARTING STAGE 0"                 

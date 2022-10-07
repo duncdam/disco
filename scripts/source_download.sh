@@ -19,6 +19,10 @@ do
    esac
 done
 
+if [[ -z $SOURCE ]]; then
+  SOURCE="all"
+fi
+
 SNOMED_ICD10_URL=https://download.nlm.nih.gov/mlb/utsauth/ICD10CM/SNOMED_CT_to_ICD-10-CM_Resources_20220901.zip
 SNOMED_CORE_URL=https://download.nlm.nih.gov/umls/kss/SNOMEDCT_CORE_SUBSET/SNOMEDCT_CORE_SUBSET_202205.zip
 ICD9_URL=https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/ICD-9-CM-v32-master-descriptions.zip
@@ -43,19 +47,18 @@ fi
 
 API_KEY=$(echo $(cat .env | rev |  cut -d"=" -f 1 | rev) )
 
-END_POINT="https://uts-ws.nlm.nih.gov/download"
+NLM_END_POINT="https://uts-ws.nlm.nih.gov/download"
 OUTPUT_PATH=./resources/downloads
 
 if [[ ! -d $OUTPUT_PATH ]]; then
   mkdir $OUTPUT_PATH
 fi
 
-
 for URL in $DOWNLOAD_URLS[@]; do 
   FILE=$(echo $URL | rev | cut -d"/" -f 1 | rev)
 
   if [[ $URL == *".nlm"* ]]; then
-    curl "$END_POINT?url=$URL&apiKey=$API_KEY" -o $OUTPUT_PATH/$FILE
+    curl "$NLMEND_POINT?url=$URL&apiKey=$API_KEY" -o $OUTPUT_PATH/$FILE
   else 
     curl $URL -o $OUTPUT_PATH/$FILE
   fi
