@@ -1,10 +1,12 @@
 (ns knowledge-graph.stage-0.parse-mesh-scr
   (:require
    [clj-http.client :as client]
+   [clojure.java.io :as io]
    [clojure.data.xml :as d-xml]
    [clojure.data.zip.xml :refer [text xml->]]
    [clojure.string :as str]
    [clojure.zip :as z]
+   [clojure.data.csv :as csv]
    [knowledge-graph.module.module :as kg]))
 
 (defn class-map
@@ -19,21 +21,27 @@
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
-  [url output_path]
-  (->>
-   (client/get url {:as :stream})
-   :body
-   (d-xml/parse)
-   :content
-   (filter #(= (:tag %) :SupplementalRecord))
-   (map class-map)
-   (apply concat)
-   (filter #(some? (:id %)))
-   distinct
-   (kg/write-csv [:id :label :synonym :subClassOf]  output_path)))
+  [url mesh-desc-path output_path]
+  (let [mesh-scr (->> (client/get url {:as :stream})
+                      :body
+                      (d-xml/parse)
+                      :content
+                      (filter #(= (:tag %) :SupplementalRecord))
+                      (map class-map)
+                      (apply concat)
+                      (filter #(some? (:id %)))
+                      distinct)
+        mesh-desc (->> (io/reader (io/resource mesh-desc-path))
+                       csv/read-csv
+                       kg/csv->map
+                       (map #(select-keys % [:id]))
+                       distinct)
+        mesh-scr-disease (kg/joiner mesh-scr mesh-desc :id :id kg/inner-join)]                 
+   (kg/write-csv [:id :label :synonym :subClassOf]  output_path mesh-scr-disease)))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
-        output "./resources/stage_0_outputs/mesh_scr.csv"]
-    (get-results url output)))
+        output-path "./resources/stage_0_outputs/mesh_scr.csv"
+        mesh-desc-path "stage_0_outputs/mesh_descriptor.csv"]
+    (get-results url mesh-desc-path output-path)))
 
