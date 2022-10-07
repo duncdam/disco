@@ -1,6 +1,7 @@
 (ns knowledge-graph.stage-1.stage-disease-nodes
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.data.csv :as csv]
    [knowledge-graph.module.module :as kg]))
 
@@ -10,24 +11,34 @@
     (let [data (csv/read-csv file :separator \tab)]
       (->> (kg/csv->map data)
            (map #(assoc % :source source))
-           (mapv #(select-keys % [:id :label :name :source_id :source]))))))
+           (map #(assoc % :source_id (cond
+              (contains? % :source_id) (:source_id %)
+              :else (:id %))))
+           (map #(assoc % :id (cond
+              (str/includes? (:id %) "_") (:id %)
+              :else (str/join "_" [(:source %) (:id %)]))))
+           (mapv #(select-keys % [:id :label :name :source_id :source]))
+           distinct))))
 
 
-(defn run []
-  (let [doid (load-disease "stage_1_outputs/doid_nodes.csv") 
-        efo (load-disease "stage_1_outputs/efo_nodes.csv")
-        hpo (load-disease "stage_1_outputs/hpo_nodes.csv")
-        icd9 (load-disease "stage_1_outputs/icd9_nodes.csv")
-        icd10 (load-disease "stage_1_outputs/icd10_nodes.csv")
-        meddra (load-disease "stage_1_outputs/meddra_nodes.csv")
-        medgen (load-disease "stage_1_outputs/medgen_nodes.csv")
-        mesh (load-disease "stage_1_outputs/mesh_nodes.csv")
-        mondo (load-disease "stage_1_outputs/mondo_nodes.csv")
-        ncit (load-disease "stage_1_outputs/ncit_nodes.csv")
-        orphanet (load-disease "stage_1_outputs/orphanet_nodes.csv")
-        snomedct (load-disease "stage_1_outputs/snomedct_nodes.csv")
-        umls (load-disease "stage_1_outputs/umls_nodes.csv")
-        disease-nodes (concat doid efo hpo icd9 icd10 meddra medgen mesh mondo ncit orphanet snomedct umls)]
-        (->>(distinct disease-nodes)
-            (kg/write-csv [:id :label :name :source_id :source] "./resources/stage_1_outputs/disease_nodes.csv"))))
+(defn run [_]
+  (let [doid (load-disease "stage_0_outputs/doid.csv" "DOID") 
+        efo (load-disease "stage_0_outputs/efo.csv" "EFO")
+        hpo (load-disease "stage_0_outputs/hpo.csv" "HPO")
+        mondo (load-disease "stage_0_outputs/mondo.csv" "MONDO")
+        icd9 (load-disease "stage_0_outputs/icd9.csv" "ICD9CM")
+        icd10 (load-disease "stage_0_outputs/icd10.csv" "ICD10CM")
+        meddra (load-disease "stage_0_outputs/meddra.csv" "MEDDRA")
+        medgen (load-disease "stage_0_outputs/medgen.csv" "MEDGEN")
+        mesh-des (load-disease "stage_0_outputs/mesh_descriptor.csv" "MESH")
+        mesh-scr (load-disease "stage_0_outputs/mesh_scr.csv" "MESH")
+        ncit (load-disease "stage_0_outputs/ncit.csv" "NCIT")
+        orphanet (load-disease "stage_0_outputs/orphanet.csv" "ORPHANET")
+        snomedct (load-disease "stage_0_outputs/snomedct.csv" "SNOMEDCT")
+        umls (load-disease "stage_0_outputs/umls.csv" "UMLS")
+        disease-nodes (concat doid efo hpo mondo orphanet
+                              icd9 icd10 snomedct umls meddra
+                              medgen mesh-des mesh-scr ncit)]
+        (->> (distinct disease-nodes)
+             (kg/write-csv [:id :label :name :source_id :source] "./resources/stage_1_outputs/disease_nodes.csv"))))
 
