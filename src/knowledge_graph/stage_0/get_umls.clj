@@ -72,11 +72,12 @@
           umls (-> (kg/joiner umls-prefLabel umls-hasDbXref :id :id kg/left-join)
                    (kg/joiner umls-synonym :id :id kg/left-join)
                    distinct)]
-          (kg/write-csv [:id :label :hasDbXref :source :synonym] output-path umls)              
-          )))
+          (->> (map #(assoc % :dbXref_source (kg/create-source (:source %) (:source %))) umls)
+               (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
+               (kg/write-csv [:id :label :hasDbXref :dbXref_source :synonym] output-path)))))
                         
 (defn run [_]
-  (let [concept-file-path "download/2022AA/META/MRCONSO.RRF"
-        semantic-file-path "download/2022AA/META/MRSTY.RRF"
+  (let [concept-file-path "downloads/2022AA/META/MRCONSO.RRF"
+        semantic-file-path "downloads/2022AA/META/MRSTY.RRF"
         output-path "./resources/stage_0_outputs/umls.csv"]
     (get-results concept-file-path semantic-file-path output-path)))

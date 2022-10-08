@@ -1,4 +1,4 @@
-(ns knowledge-graph.stage-0.parse-mesh-descriptor
+(ns knowledge-graph.stage-0.get-mesh-des
   (:require
    [clj-http.client :as client]
    [clojure.data.xml :as d-xml]

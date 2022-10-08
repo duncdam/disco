@@ -15,7 +15,7 @@
      (map #(into [] [(first %) (str/join " " (rest %))]))
      kg/csv->map
      (filter #(some? (:id %)))
-     (kg/write-csv [:id :label] output-path))))
+     (kg/write-csv [:id :label :source] output-path))))
 
 (defn run [_]
   (let [url "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_codes_2022.txt"

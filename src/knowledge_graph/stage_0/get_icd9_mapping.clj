@@ -14,9 +14,9 @@
                             csv/read-csv
                             kg/csv->map
                             (filter #(not= (:id9cm %) ""))
-                            (map #(assoc % :source "ICD10CM"))
+                            (map #(assoc % :dbXref_source "ICD10CM"))
                             (map #(set/rename-keys % {:icd9cm :id :icd10cm :hasDbXref }))
-                            (mapv #(select-keys % [:id :hasDbXref :source])))
+                            (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
         icd9-snomed-map (with-open [file (io/reader (io/resource snomed-file-path))]
                             (->>  (slurp file)
                                   str/split-lines
@@ -25,17 +25,17 @@
                                   kg/csv->map
                                   (filter #(not (str/includes? (:ICD_CODE %) "ICD_CODE")))
                                   (map #(assoc % :hasDbXref (:SNOMED_CID %)))
-                                  (map #(assoc % :source "SNOMED_CT"))
+                                  (map #(assoc % :dbXref_source "SNOMED_CT"))
                                   (map #(assoc % :id (:ICD_CODE %)))
                                   (map #(assoc % :id (str/replace (:id %) "." "")))
-                                  (mapv #(select-keys % [:id :hasDbXref :source]))))
+                                  (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))))
         icd9-mapping (->> (concat icd9-icd10-map icd9-snomed-map)
                            distinct)]
-        (kg/write-csv [:id :hasDbXref :source] output-path icd9-mapping)))
+        (kg/write-csv [:id :hasDbXref :dbXref_source] output-path icd9-mapping)))
 
 (defn run
   [_]
   (let [icd10-url "https://data.nber.org/gem/icd9toicd10cmgem.csv"
-        snomed-file-path "download/ICD9CM_SNOMED_MAP_1TO1_202112.txt"
+        snomed-file-path "downloads/ICD9CM_SNOMED_MAP_1TO1_202112.txt"
         output-path "./resources/stage_0_outputs/icd9_mapping.csv"]
     (get-results icd10-url snomed-file-path output-path)))
