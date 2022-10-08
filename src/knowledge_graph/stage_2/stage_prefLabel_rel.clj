@@ -23,10 +23,10 @@
          (mapv #(select-keys % [:id :name]))
          distinct)))
 
-(defn run []
+(defn run [_]
   (let [synonym-nodes (get-synonym-nodes "stage_1_outputs/synonym_nodes.csv")
         prefLabel (get-prefLabel "stage_1_outputs/disease_nodes.csv")]
-        (->> (kg/joiner prefLabel synonym-nodes :end :name kg/inner-join)
+        (->> (kg/joiner prefLabel synonym-nodes :end :name kg/left-join)
              (map #(assoc % :type "prefLabel"))
              (map #(set/rename-keys % {:start :start_id :id :end_id}))
              (mapv #(select-keys % [:start_id :type :end_id]))
