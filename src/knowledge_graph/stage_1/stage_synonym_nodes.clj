@@ -22,27 +22,28 @@
       (concat synonym name)))))
 
 
-(defn run []
+(defn run [_]
   (let [doid (get-synonyms "stage_0_outputs/doid.csv")
         efo (get-synonyms "stage_0_outputs/efo.csv")
         hpo (get-synonyms "stage_0_outputs/hpo.csv")
-        icd9 (get-synonyms "stage_0_outputs/icd9.csv" :long_label :short_label)
+        mondo (get-synonyms "stage_0_outputs/mondo.csv")
+        icd9 (get-synonyms "stage_0_outputs/icd9.csv")
         icd10 (get-synonyms "stage_0_outputs/icd10.csv")
-        medgen (get-synonyms "stage_0_outputs/medgen_id_mapping.csv" :synonym :medgen_name)
+        meddra (get-synonyms "stage_0_outputs/meddra.csv")
+        medgen (get-synonyms "stage_0_outputs/medgen.csv")
         desc (get-synonyms "stage_0_outputs/mesh_descriptor.csv")
         scr (get-synonyms "stage_0_outputs/mesh_scr.csv")
-        mondo (get-synonyms "stage_0_outputs/mondo.csv")
-        ncit (get-synonyms "stage_0_outputs/ncit_meddra_mapping.csv" :synonym :ncit_name)
-        ncit_neo (get-synonyms "stage_0_outputs/ncit_neoplasm_mapping.csv" :synonym :ncit_name)
+        ncit (get-synonyms "stage_0_outputs/ncit.csv")
+        ncit_mapping (get-synonyms "stage_0_outputs/ncit_mapping.csv")
         orphanet (get-synonyms "stage_0_outputs/orphanet.csv")
-        snomedct (get-synonyms "stage_0_outputs/snomedct_icd10.csv" :synonym :snomed_name)
+        snomedct (get-synonyms "stage_0_outputs/snomedct.csv")
+        snomedct_mapping (get-synonyms "stage_0_outputs/snomedct_mapping.csv")
         umls (get-synonyms "stage_0_outputs/umls.csv")
-        synonyms (concat doid efo hpo icd9 icd10 medgen desc scr mondo ncit ncit_neo orphanet snomedct umls)] 
-    (->>
-      (distinct synonyms)
-      (filter #(not= (:name %) ""))
-      (filter #(some? (:name %)))
-      (map #(assoc % :fake_id (hash (:name %))))
-      (map #(assoc % :con_name (str/replace (:name %) " " "_")))
-      (map #(assoc % :id (str/join "_" [(:fake_id %) (:con_name %)])))
-      (kg/write-csv [:label :id :name] "./resources/stage_1_outputs/synonym_nodes.csv"))))
+        synonyms (concat doid efo hpo icd9 icd10 medgen desc meddra scr mondo ncit ncit_mapping orphanet snomedct snomedct_mapping umls)] 
+    (->> (filter #(not= (:name %) "") synonyms)
+         (filter #(some? (:name %)))
+         (map #(assoc % :fake_id (hash (:name %))))
+         (map #(assoc % :con_name (str/replace (:name %) " " "_")))
+         (map #(assoc % :id (str/join "_" [(:fake_id %) (:con_name %)])))
+         distinct
+         (kg/write-csv [:label :id :name] "./resources/stage_1_outputs/synonym_nodes.csv"))))

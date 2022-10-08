@@ -11,6 +11,8 @@
     (let [data (csv/read-csv file :separator \tab)]
       (->> (kg/csv->map data)
            (map #(assoc % :source source))
+           (map #(assoc % :name (:label %)))
+           (map #(assoc % :label source))
            (map #(assoc % :source_id (cond
               (contains? % :source_id) (:source_id %)
               :else (:id %))))
