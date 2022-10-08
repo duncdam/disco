@@ -37,6 +37,10 @@ echo "###################################"
 echo "STARTING STAGE 2"                 
 echo "###################################"
 
+echo "Staging altLabel relationship"
+clj -X:altLabel
+echo "Finish altLabel relationship"
+
 clj -M:stage-2
 
 echo "###################################"

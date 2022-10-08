@@ -2,6 +2,7 @@
   (:require
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [clojure.set :refer [difference intersection union]]))
 
 (defn create-header
@@ -60,3 +61,49 @@
            (map #(map-combine (get left-idx  % [{}])
                               (get right-idx % [{}])
                               (zipmap (set (union (keys (first left-coll)) (keys (first right-coll)))) (repeat nil))) join-keys))))
+
+(defn correct-source-id
+  [dbXref]
+  (let [processed-dbXref (
+    cond
+      (or (str/includes? dbXref "DOID") 
+          (str/includes? dbXref "EFO")
+          (str/includes? dbXref "HP")
+          (str/includes? dbXref "MONDO")) (str/replace dbXref #":" "_")
+      (or (str/includes? dbXref "ICD")
+          (str/includes? (str/lower-case dbXref) "mesh")
+          (str/includes? dbXref "MSH")
+          (str/includes? dbXref "UMLS")
+          (str/includes? (str/lower-case dbXref) "snomedct")
+          (str/includes? dbXref "SCTID")
+          (str/includes? dbXref "NCI")
+          (str/includes? dbXref "MedDRA")) (str/replace dbXref #".*:" "")
+      (str/includes? (str/lower-case dbXref) "orphanet") (str/replace (str/lower-case dbXref) #"orphanet*[_|:]" "ORPHA:")
+      :else dbXref)]
+  (cond 
+    (or (str/includes? processed-dbXref "*") (str/includes? processed-dbXref "+")) (str/replace processed-dbXref #"[\*|\+]" "")
+    (str/includes? processed-dbXref ".")(str/replace processed-dbXref "." "")
+    :else processed-dbXref)))
+
+(defn create-source
+  [dbXref source]
+  (cond
+    (str/includes? dbXref "DOID") "DOID"
+    (str/includes? dbXref "EFO") "EFO"
+    (or (str/includes? dbXref "HPO")
+        (str/includes? dbXref "HP")) "HPO"
+    (str/includes? dbXref "MONDO") "MONDO"
+    (str/includes? dbXref "ICD9") "ICD9CM"
+    (or (str/includes? dbXref "ICD10") 
+        (str/includes? dbXref "ICD-10")) "ICD10CM"
+    (or (str/includes? dbXref "MSH") 
+        (str/includes? (str/lower-case dbXref) "mesh")) "MESH"
+    (str/includes? dbXref "UMLS") "UMLS"
+    (or (str/includes? dbXref "SNOMEDCT")
+        (str/includes? dbXref "SCTID")) "SNOMEDCT"
+    (str/includes? dbXref "NCI") "NCIT"
+    (str/includes? (str/lower-case dbXref) "orpha") "ORPHANET"
+    (or (str/includes? (str/lower-case dbXref) "meddra")
+        (str/includes? dbXref "MDR")) "MEDDRA"
+    :else source
+  ))

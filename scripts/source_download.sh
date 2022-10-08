@@ -66,9 +66,9 @@ for URL in $DOWNLOAD_URLS[@]; do
 
   if [[ $FILE == *".zip"* ]]; then
     unzip -o -d $OUTPUT_PATH $OUTPUT_PATH/$FILE
+    rm $OUTPUT_PATH/$FILE
   fi
-
-  rm $OUTPUT_PATH/$FILE
+  
 done
 
 cleanShell
