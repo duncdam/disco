@@ -23,8 +23,10 @@
                            (cons ["CUI" "TS" "STT" "ISPREF" "AUI" "SAUI" "SCUI" "SDUI" "SAB" "TTY" "CODE" "STR" "SUPPRESS"])
                            kg/csv->map
                            (filter #(not= (:CUI %) "#CUI"))
-                           (map #(set/rename-keys % {:CUI :id :STT :label-type :CODE :hasDbXref :SAB :source :STR :synonym}))
-                           (map #(select-keys % [:id :hasDbXref :source :synonym])))
+                           (map #(set/rename-keys % {:CUI :id :STT :label-type :CODE :hasDbXref :SAB :dbXref_source :STR :synonym}))
+                           (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
+                           (map #(assoc % :dbXref_source (kg/create-source (:dbXref_source %) (:dbXref_source %))))
+                           (map #(select-keys % [:id :hasDbXref :dbXref_source :synonym])))
           name-map (->> (slurp name-file)
                         str/split-lines
                         (map #(str/split % #"\|"))
@@ -34,9 +36,9 @@
                         (map #(set/rename-keys % {:CUI :id :name :label}))
                         (map #(select-keys % [:id :label])))
           medgen (kg/joiner name-map concept-map :id :id kg/inner-join)]
-          (->> (mapv #(select-keys % [:id :label :hasDbXref :source :synonym]) medgen)
+          (->> (mapv #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym]) medgen)
                distinct
-               (kg/write-csv [:id :label :hasDbXref :source :synonym] output-path)))))
+               (kg/write-csv [:id :label :hasDbXref :dbXref_source :synonym] output-path)))))
 
 (defn file-path
   [save-path fname]

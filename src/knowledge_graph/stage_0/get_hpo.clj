@@ -1,4 +1,4 @@
-(ns knowledge-graph.stage-0.parse-hpo
+(ns knowledge-graph.stage-0.get-hpo
   (:require
    [clj-http.client :as client]
    [clojure.data.xml :as d-xml]
@@ -34,9 +34,12 @@
    (filter #(str/includes? (:id %) "HP_"))
    (map #(assoc % :id (last (str/split (:id %) #"/"))))
    (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
+   (map #(assoc % :dbXref_source (kg/create-source (:hasDbXref %) "HPO")))
+   (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
+   (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
+   (map #(select-keys % [:id :label :subClassOf :hasDbXref :synonym :dbXref_source]))
    distinct
-   (kg/write-csv [:id :label :alternative_id :subClassOf :hasDbXref :synonym] output_path)
-  ))
+   (kg/write-csv [:id :label :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
 
 (defn run [_]
   (let [url "http://purl.obolibrary.org/obo/hp.owl"

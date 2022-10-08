@@ -1,4 +1,4 @@
-(ns knowledge-graph.stage-0.parse-efo
+(ns knowledge-graph.stage-0.get-efo
   (:require
    [clj-http.client :as client]
    [clojure.data.xml :as d-xml]
@@ -34,8 +34,12 @@
        (map #(assoc % :id (last (str/split (:id %) #"/"))))
        (filter #(str/includes? (:id %) "EFO_"))
        (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
+       (map #(assoc % :dbXref_source (kg/create-source (:hasDbXref %) "EFO")))
+       (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
+       (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
+       (map #(select-keys % [:id :label :subClassOf :hasDbXref :synonym :dbXref_source]))
        distinct
-       (kg/write-csv [:id :label :subClassOf :hasDbXref :synonym] output_path)))
+       (kg/write-csv [:id :label :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
 
 (defn run [_]
   (let [url "https://github.com/EBISPOT/efo/releases/download/current/efo.owl"

@@ -32,6 +32,6 @@
 (defn run
   [_]
   (let [output-path "./resources/stage_0_outputs/icd9.csv"
-        long-file-path "download/CMS32_DESC_LONG_DX.txt"
-        short-file-path "download/CMS32_DESC_SHORT_DX.txt"]
+        long-file-path "downloads/CMS32_DESC_LONG_DX.txt"
+        short-file-path "downloads/CMS32_DESC_SHORT_DX.txt"]
     (get-results long-file-path short-file-path output-path)))
