@@ -1,4 +1,29 @@
 #!bin/zsh
+if [[ ! -d ./resources/downloads ]];
+  then 
+    mkdir ./resources/downloads
+fi
+
+if [[ ! -d ./resources/stage_0_outputs ]];
+  then 
+    mkdir ./resources/stage_0_outputs
+fi
+
+if [[ ! -d ./resources/stage_1_outputs ]];
+  then 
+    mkdir ./resources/stage_1_outputs
+fi
+
+if [[ ! -d ./resources/stage_2_outputs ]];
+  then 
+    mkdir ./resources/stage_2_outputs
+fi
+
+if [[ ! -d ./resources/stage_3_outputs ]];
+  then 
+    mkdir ./resources/stage_3_outputs
+fi
+
 echo "###################################"
 echo "DOWNLOADING..."                 
 echo "###################################"
@@ -45,4 +70,14 @@ clj -M:stage-2
 
 echo "###################################"
 echo "STAGE 2 FINISHED"                 
+echo "###################################"
+
+echo "###################################"
+echo "STARTING STAGE 3"                 
+echo "###################################"
+
+clj -X:stage-3
+
+echo "###################################"
+echo "STAGE 3 FINISHED"                 
 echo "###################################"
