@@ -5,9 +5,9 @@
    [clojure.tools.logging :as log]))
 
 (defn -main []
-  (disease-nodes/run)
+  (disease-nodes/run '_)
   (log/info "finish staging all DISEASE nodes")
-  (synonym-nodes/run)
+  (synonym-nodes/run '_)
   (log/info "finish staging all SYNONYM nodes"))
 
 

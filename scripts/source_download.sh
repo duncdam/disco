@@ -57,6 +57,7 @@ fi
 
 for URL in $DOWNLOAD_URLS[@]; do 
   FILE=$(echo $URL | rev | cut -d"/" -f 1 | rev)
+  echo "Downloading $FILE"
 
   if [[ $URL == *".nlm"* ]]; then
     curl "$NLM_END_POINT?url=$URL&apiKey=$API_KEY" -o $OUTPUT_PATH/$FILE

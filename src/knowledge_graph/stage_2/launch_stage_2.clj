@@ -6,10 +6,10 @@
    [clojure.tools.logging :as log]))
 
 (defn -main []
-  (hasDbXref/run)
+  (hasDbXref/run '_)
   (log/info "finished staging hasDbXref relationships")
-  (prefLabel/run)
+  (prefLabel/run '_)
   (log/info "finished staging prefLabel relationship")
-  (subClassOf/run)
+  (subClassOf/run '_)
   (log/info "finish staging subClassOf relationship"))
   

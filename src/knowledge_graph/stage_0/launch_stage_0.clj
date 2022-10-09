@@ -7,7 +7,7 @@
    [knowledge-graph.stage-0.get-orphanet :as po]
    [knowledge-graph.stage-0.get-efo :as efo]
    [knowledge-graph.stage-0.get-hpo :as hpo]
-   [knowledge-graph.stage-0.get-mesh-descriptor :as mdx]
+   [knowledge-graph.stage-0.get-mesh-des :as mdx]
    [knowledge-graph.stage-0.get-mesh-scr :as msx]
    [knowledge-graph.stage-0.get-snomedct :as snomedct]
    [knowledge-graph.stage-0.get-ncit :as ncit]
