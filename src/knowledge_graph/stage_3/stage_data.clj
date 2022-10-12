@@ -3,7 +3,8 @@
    [clojure.java.io :as io]
    [clojure.set :as set]
    [clojure.data.csv :as csv]
-   [knowledge-graph.module.module :as kg]))
+   [knowledge-graph.module.module :as kg]
+   [clojure.tools.logging :as log]))
 
 (defn read-file
   [file-path]
@@ -21,9 +22,10 @@
         prefLabel (read-file "stage_2_outputs/prefLabel_rel.csv")
         subClassOf (read-file "stage_2_outputs/subClassOf_rel.csv")
         nodes (distinct (concat diseases synonyms))
-        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf))
-        ]
+        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf))]
+        (log/info "Staging all nodes for neo4j")
         (->> (map #(set/rename-keys % {:id :ID :label :LABEL}) nodes)
-             (kg/write-csv [:LABEL :ID :name :source_id :source] "./resources/stage_3_outputs/nodes.csv"))
+             (kg/write-csv [:LABEL :ID :name :source_id :source] "./neo4j/import/nodes.csv"))
+        (log/info "Staging all relationships for neo4j")
         (->> (map #(set/rename-keys % {:start_id :START_ID :type :TYPE :end_id :END_ID}) relationships)
-             (kg/write-csv [:START_ID :TYPE :END_ID] "./resources/stage_3_outputs/relationships.csv"))))
+             (kg/write-csv [:START_ID :TYPE :END_ID] "./neo4j/import/relationships.csv"))))

@@ -1,0 +1,33 @@
+version: '3'
+services:
+  neo4j:
+    build:
+      context: .
+      dockerfile: ./neo4j/Dockerfile
+    volumes:
+      # database directory
+      - ./neo4j/dbs:/data
+      # log directory
+      - ./neo4j/logs:/logs
+      # data import directory
+      - ./neo4j/import:/var/lib/neo4j/import
+      # config directory
+      - ./neo4j/conf:/conf
+      # plugins directory
+      - ./neo4j/plugins:/var/lib/neo4j/plugins
+    environment:
+      # set the neo4j auth
+      - NEO4J_AUTH=$NEO4J_USER/$NEO4J_PASS
+      # configure neo4j to allow database imports/exports via APOC
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true 
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4JLABS_PLUGINS=["apoc"]
+
+    ports:
+      # HTTP
+      - 7474:7474
+      # BOLT
+      - 7687:7687
+      # HTTPS
+      #- 7473:7473

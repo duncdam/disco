@@ -5,6 +5,7 @@
    [clojure.string :as str]
    [knowledge-graph.module.module :as kg]))
 
+;; I stole this from https://stackoverflow.com/questions/47333668/split-lines-in-clojure-while-reading-from-file
 (defn lines-reducible [rdr]
   (reify clojure.lang.IReduceInit
     (reduce [this f init]
@@ -27,7 +28,6 @@
                                 (map #(str/split % #"\|"))
                                 (cons ["CUI" "LAT" "TS" "LUI" "STT" "SUI" "ISPREF" "AUI" "SAUI" "SCUI" "SDUI" "SAB" "TTY" "CODE" "STR" "SRL" "SUPPRESS" "CVF" "empty"])
                                 kg/csv->map
-                                ;; (map #(select-keys % [:CUI :LAT :STR :TTY :SAB :CODE]))
                                 (filter #(= (:LAT %) "ENG"))
                                 (filter #(or (= (:SAB %) "MSH")
                                              (= (:SAB %) "HPO")

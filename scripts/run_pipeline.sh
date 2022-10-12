@@ -1,8 +1,4 @@
-#!bin/zsh
-if [[ ! -d ./resources/downloads ]];
-  then 
-    mkdir ./resources/downloads
-fi
+#!/bin/zsh
 
 if [[ ! -d ./resources/stage_0_outputs ]];
   then 
@@ -24,11 +20,6 @@ if [[ ! -d ./resources/stage_3_outputs ]];
     mkdir ./resources/stage_3_outputs
 fi
 
-echo "###################################"
-echo "DOWNLOADING..."                 
-echo "###################################"
-
-source ./scripts/source_download.sh
 
 echo "###################################"
 echo "STARTING STAGE 0"                 

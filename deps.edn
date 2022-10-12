@@ -15,10 +15,6 @@
       :exec-fn knowledge-graph.stage-0.get-umls/run
       :jvm-opts ["-Xmx10G"]
     }
-    :altLabel {
-      :exec-fn knowledge-graph.stage-2.stage-altLabel-rel/run
-      :jvm-opts ["-Xmx10G"]
-    }
     :stage-0 {:main-opts ["-m" "knowledge-graph.stage-0.launch-stage-0"]}
     :stage-1 {:main-opts ["-m" "knowledge-graph.stage-1.launch-stage-1"]}
     :stage-2 {:main-opts ["-m" "knowledge-graph.stage-2.launch-stage-2"]}
