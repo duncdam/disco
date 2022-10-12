@@ -54,9 +54,9 @@
                              medgen_synonym ncit_synonym ncit_synonym_from_mapping
                              snomedct_synonym icd9_synonym umls_synonym)
                      distinct)
-       altLabel (-> (kg/joiner disease-nodes synonyms :start :source_id kg/inner-join)
+       altLabel (-> (kg/joiner disease-nodes synonyms :source_id :start kg/inner-join)
                     (kg/joiner synonym-nodes :end :name kg/inner-join))] 
       (->> (map #(assoc % :type "altLabel") altLabel) 
-           (mapv #(select-keys % [:start_id :type :end_id]))
+           (map #(select-keys % [:start_id :type :end_id]))
            distinct
            (kg/write-csv [:start_id :type :end_id] "./resources/stage_2_outputs/altLabel_rel.csv"))))

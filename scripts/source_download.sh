@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/bin/zsh
 
 cleanShell()
 {
@@ -23,15 +23,8 @@ if [[ -z $SOURCE ]]; then
   SOURCE="all"
 fi
 
-SNOMED_ICD10_URL=https://download.nlm.nih.gov/mlb/utsauth/ICD10CM/SNOMED_CT_to_ICD-10-CM_Resources_20220901.zip
-SNOMED_CORE_URL=https://download.nlm.nih.gov/umls/kss/SNOMEDCT_CORE_SUBSET/SNOMEDCT_CORE_SUBSET_202205.zip
-ICD9_URL=https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/ICD-9-CM-v32-master-descriptions.zip
-SNOMED_ICD9_URL=https://download.nlm.nih.gov/umls/kss/mappings/ICD9CM_TO_SNOMEDCT/ICD9CM_DIAGNOSIS_MAP_202112.zip
-SNOMED_ORPHANET_URL=https://download.nlm.nih.gov/umls/kss/IHTSDO20210731/SnomedCT_SNOMEDOrphanetMapPackage_PRODUCTION_20211031T120000Z.zip
-SNOMED_MedDRA_URL=https://download.nlm.nih.gov/umls/kss/mappings/SnomedCT_SNOMEDMedDRAMapPackage_PRODUCTION_20220511T120000Z.zip
-SNOMED_MAPSET_URL=https://download.nlm.nih.gov/mlb/utsauth/CMT/2022/UMLS_KP_ProblemList_Mapping_20220301_Final.txt
-UMLS_URL=https://download.nlm.nih.gov/umls/kss/2022AA/umls-2022AA-metathesaurus.zip
-
+#load .env variables
+source .env
 
 if [[ $SOURCE == "umls" ]]; then
   DOWNLOAD_URLS=($UMLS_URL)
@@ -44,9 +37,6 @@ elif [[ $SOURCE == "all" ]]; then
 else 
   echo "Wrong source"
 fi
-
-#load .env variables
-source .env
 
 NLM_END_POINT="https://uts-ws.nlm.nih.gov/download"
 OUTPUT_PATH=./resources/downloads

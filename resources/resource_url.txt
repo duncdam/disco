@@ -31,13 +31,12 @@ ICD11 : https://icd.who.int/dev11/Downloads/Download?fileName=LinearizationMiniO
 ICD10-ICD11: https://icd.who.int/browse11/Downloads/Download?fileName=mapping.zip
 OMIM: https://www.omim.org/downloads (waiting)
 KEGG: https://rest.kegg.jp/list/disease also https://rest.kegg.jp/get/br:br08403/json also https://rest.kegg.jp/link/disease/pathway
-
+PheCODE: https://phewascatalog.org/files/phecode_definitions1.2.csv.zip also https://phewascatalog.org/files/ICD-CM_to_phecode_unrolled.txt.zip
 
 Notes:
-Need to redo Medgen and NCI
-Medgen id and umls id are the same so need to combine. However Medgen id has different mapping to MONDO, HPO and other vs UMLS has mapping to more EHR ontology
-NCI has its own ontology - need to ingest core also ingest mapping
+Medgen id and umls id are the same. However Medgen id has different mapping to MONDO, HPO and other vs UMLS has mapping to more EHR ontology
 OMIM will be very nice to have
 MedDRA is not free, so will create a nodes based on the mapping available for cross referencing
 ICO-3 will be good to have for oncology
-KEGG needs to be ingested also
+ICD11 is coming
+KEGG needs to be ingested
