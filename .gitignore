@@ -1,7 +1,7 @@
 pom.xml
 pom.xml.asc
-*.jar
 *.class
+*.csv
 /lib/
 /classes/
 /target/
@@ -15,9 +15,4 @@ pom.xml.asc
 /resources/*/*
 .DS_Store
 .env
-neo4j/data/
-neo4j/import
-neo4j/logs
-neo4j/plugins
-neo4j/dbs
 neo4j/scripts/creds.sh
