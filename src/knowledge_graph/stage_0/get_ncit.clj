@@ -20,7 +20,6 @@
   (let [{:keys [id label synonym]} m]
     (map (fn [x] {:id id :label label :synonym x}) synonym)))
 
-
 (defn get-ncit
   [url output-path]
   (let [ncit-raw (->> (client/get url {:as :reader})
