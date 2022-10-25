@@ -39,10 +39,12 @@
         snomedct-dbXref (hasDbXref "stage_0_outputs/snomedct_mapping.csv")
         snomedct-core-dbXref (hasDbXref "stage_0_outputs/snomedct.csv")
         umls-dbXref (hasDbXref "stage_0_outputs/umls.csv")
+        kegg-dbXref (hasDbXref "stage_0_outputs/kegg_mapping.csv")
         dbXref (distinct (concat doid-dbXref efo-dbXref 
                                  hpo-dbXref mondo-dbXref 
                                  orphanet-dbXref 
                                  umls-dbXref
+                                 kegg-dbXref
                                  icd9-dbXref medgen-dbXref 
                                  ncit-dbXref 
                                  snomedct-dbXref snomedct-core-dbXref))

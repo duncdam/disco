@@ -39,7 +39,8 @@
         snomedct (get-synonyms "stage_0_outputs/snomedct.csv")
         snomedct_mapping (get-synonyms "stage_0_outputs/snomedct_mapping.csv")
         umls (get-synonyms "stage_0_outputs/umls.csv")
-        synonyms (concat doid efo hpo icd9 icd10 medgen desc meddra scr mondo ncit ncit_mapping orphanet snomedct snomedct_mapping umls)] 
+        kegg (get-synonyms "stage_0_outputs/kegg.csv")
+        synonyms (concat doid efo hpo icd9 icd10 medgen desc meddra scr mondo ncit ncit_mapping orphanet snomedct snomedct_mapping umls kegg)] 
     (->> (filter #(not= (:name %) "") synonyms)
          (filter #(some? (:name %)))
          (map #(assoc % :fake_id (hash (:name %))))

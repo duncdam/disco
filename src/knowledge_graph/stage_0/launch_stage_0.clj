@@ -12,10 +12,12 @@
    [knowledge-graph.stage-0.get-snomedct :as snomedct]
    [knowledge-graph.stage-0.get-ncit :as ncit]
    [knowledge-graph.stage-0.get-meddra :as meddra]
+   [knowledge-graph.stage-0.get-kegg :as kegg] 
    [knowledge-graph.stage-0.get-medgen-mapping :as mdm]
    [knowledge-graph.stage-0.get-ncit-mapping :as nnm]
    [knowledge-graph.stage-0.get-snomedct-mapping :as si10]
    [knowledge-graph.stage-0.get-icd9-mapping :as icd910]
+   [knowledge-graph.stage-0.get-kegg-mapping :as kem]
    [clojure.tools.logging :as log]))
 
 (defn -main []
@@ -43,6 +45,8 @@
   (log/info "finish getting NCIT")
   (meddra/run '_)
   (log/info "finish getting MEDDRA")
+  (kegg/run '_)
+  (log/info "finish getting KEGG")
   (mdm/run '_)
   (log/info "finished MEDGEN mapping")
   (nnm/run '_)
@@ -51,5 +55,7 @@
   (log/info "finished SNOMED mapping")
   (icd910/run '_)
   (log/info "finish ICD9 mapping")
+  (kem/run '_)
+  (log/info "finish KEGG mapping")
   )
 

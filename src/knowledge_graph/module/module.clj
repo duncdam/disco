@@ -69,6 +69,7 @@
       (or (str/includes? dbXref "DOID") 
           (str/includes? dbXref "EFO")
           (str/includes? dbXref "HP")
+          (str/includes? dbXref "KEGG")
           (str/includes? dbXref "MONDO")) (str/replace dbXref #":" "_")
       (or (str/includes? dbXref "ICD")
           (str/includes? (str/lower-case dbXref) "mesh")

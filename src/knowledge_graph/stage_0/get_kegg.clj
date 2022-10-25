@@ -13,7 +13,7 @@
         data (->> (csv/read-csv file :separator \tab)
                   (cons ["code" "label"])
                   (kg/csv->map)
-                  (map #(assoc % :id (str/replace (:code %) #"ds:" "KEGG:")))
+                  (map #(assoc % :id (str/replace (:code %) #"ds:" "KEGG_")))
                   (map #(set/rename-keys % {:code :source_id})))]
        (kg/write-csv [:id :label :source_id] output-path data)))
 

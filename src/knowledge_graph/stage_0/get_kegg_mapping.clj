@@ -19,6 +19,7 @@
        (map #(:data %))
        (apply concat)
        (map #(assoc % :id (first (str/split (:children %) #"\s{1,}"))))
+       (map #(assoc % :id (str/join ["ds:" (:id %)])))
        (map #(assoc % :hasDbXref (first (str/split (:parent %) #"\s{1,}"))))
        (map #(assoc % :is_yes? (re-matches #"\d{1}\w{1}\d{2}" (:hasDbXref %))))
        (map #(assoc % :is_yes_2? (re-matches #"\w{2}\d{2}" (:hasDbXref %))))
