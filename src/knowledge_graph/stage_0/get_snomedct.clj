@@ -3,6 +3,7 @@
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    [clojure.set :as set]
+   [clojure.string :as str]
    [knowledge-graph.module.module :as kg]))
 
 (defn get-snomedct
@@ -14,8 +15,9 @@
          (map #(set/rename-keys % {:SNOMED_CID :id :SNOMED_FSN :label}))
          (map #(assoc % :hasDbXref (:UMLS_CUI %)))
          (map #(assoc % :dbXref_source "UMLS"))
-         (mapv #(select-keys % [:id :label :hasDbXref :dbXref_source]))
+         (map #(select-keys % [:id :label :hasDbXref :dbXref_source]))
          distinct
+         (map #(assoc % :id (str/join "_" ["SNOMEDCT" (:id %)])))
          (kg/write-csv [:id :label :hasDbXref :dbXref_source] output-path))))
 
 (defn run [_]

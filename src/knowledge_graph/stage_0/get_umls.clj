@@ -74,7 +74,9 @@
                    distinct)]
           (->> (map #(assoc % :dbXref_source (kg/create-source (:source %) (:source %))) umls)
                (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
-               (kg/write-csv [:id :label :hasDbXref :dbXref_source :synonym] output-path)))))
+               (map #(assoc % :source_id (:id %)))
+               (map #(assoc % :id (str/join "_" ["UMLS" (:id %)])))
+               (kg/write-csv [:id :label :source_id :hasDbXref :dbXref_source :synonym] output-path)))))
                         
 (defn run [_]
   (let [concept-file-path "downloads/2022AA/META/MRCONSO.RRF"

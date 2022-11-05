@@ -37,9 +37,11 @@
                          (map #(set/rename-keys % {:id :subClassOf}))
                          (map #(select-keys % [:subClassOf :parent_tree_location])))
         mesh-des (kg/joiner mesh-data mesh-parent :tree_location :parent_tree_location kg/left-join)]
-        (->> (mapv #(select-keys % [:id :label :synonym :subClassOf]) mesh-des)
+        (->> (map #(assoc % :source_id (:id %)) mesh-des)
+             (map #(assoc % :id (str/join "_" ["MESH" (:id %)])))
+             (map #(select-keys % [:id :label :source_id :synonym :subClassOf]))
              distinct 
-             (kg/write-csv [:id :label :synonym :subClassOf] output_path))))
+             (kg/write-csv [:id :label :source_id :synonym :subClassOf] output_path))))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2022.xml"

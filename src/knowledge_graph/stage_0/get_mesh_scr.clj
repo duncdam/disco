@@ -34,10 +34,12 @@
                         distinct)
           mesh-desc (->> (csv/read-csv file :separator \tab)
                          kg/csv->map
-                         (map #(select-keys % [:id]))
+                         (map #(select-keys % [:source_id]))
                          distinct)
-          mesh-scr-disease (kg/joiner mesh-scr mesh-desc :subClassOf :id kg/inner-join)]
-      (kg/write-csv [:id :label :synonym :subClassOf]  output_path mesh-scr-disease))))
+          mesh-scr-disease (kg/joiner mesh-scr mesh-desc :subClassOf :source_id kg/inner-join)]
+      (->>(map #(assoc % :source_id (:id %)) mesh-scr-disease)
+          (map #(assoc % :id (str/join "_" ["MESH" (:id %)])))
+          (kg/write-csv [:id :label :source_id :synonym :subClassOf]  output_path)))))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
