@@ -2,7 +2,7 @@
   (:require
    [knowledge-graph.stage-1.stage-disease-nodes :as disease-nodes]
    [knowledge-graph.stage-1.stage-synonym-nodes :as synonym-nodes]
-   [clojure.tools.logging :as log]))
+   [taoensso.timbre :as log]))
 
 (defn -main []
   (disease-nodes/run '_)
