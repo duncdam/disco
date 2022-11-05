@@ -4,7 +4,7 @@
    [knowledge-graph.stage-2.stage-prefLabel-rel :as prefLabel]
    [knowledge-graph.stage-2.stage-altLabel-rel :as altLabel]
    [knowledge-graph.stage-2.stage-subClassOf-rel :as subClassOf]
-   [clojure.tools.logging :as log]))
+   [taoensso.timbre :as log]))
 
 (defn -main []
   (hasDbXref/run '_)

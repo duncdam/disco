@@ -6,7 +6,6 @@
     [clojure.data.csv :as csv]
     [knowledge-graph.module.module :as kg]))
 
-
 (defn get-synonyms-from-ontology
   ([file-path] (get-synonyms-from-ontology file-path :synonym))
   ([file-path synonym]
@@ -45,15 +44,17 @@
        mesh_scr_synonym (get-synonyms-from-ontology "stage_0_outputs/mesh_scr.csv")
        medgen_synonym (get-synonyms-from-ontology "stage_0_outputs/medgen.csv")
        ncit_synonym (get-synonyms-from-ontology "stage_0_outputs/ncit.csv")
-       ncit_synonym_from_mapping (get-synonyms-from-ontology "stage_0_outputs/ncit_mapping.csv")
        icd9_synonym (get-synonyms-from-ontology "stage_0_outputs/icd9.csv") 
-       snomedct_synonym (get-synonyms-from-ontology "stage_0_outputs/snomedct_mapping.csv") 
+       icd10_synonym (get-synonyms-from-ontology "stage_0_outputs/icd10.csv") 
+       icd11_synonym (get-synonyms-from-ontology "stage_0_outputs/icd11.csv") 
+       snomedct_synonym (get-synonyms-from-ontology "stage_0_outputs/snomedct.csv") 
        umls_synonym (get-synonyms-from-ontology "stage_0_outputs/umls.csv")
        kegg_synonym (get-synonyms-from-ontology "stage_0_outputs/kegg.csv")
        synonyms (->> (concat doid_synonym efo_synonym hpo_synonym mondo_synonym
                              orphanet_synonym mesh_scr_synonym mesh_desc_synonym
-                             medgen_synonym ncit_synonym ncit_synonym_from_mapping
-                             snomedct_synonym icd9_synonym umls_synonym kegg_synonym)
+                             medgen_synonym ncit_synonym snomedct_synonym 
+                             icd9_synonym umls_synonym kegg_synonym
+                             icd11_synonym icd10_synonym)
                      distinct)
        altLabel (-> (kg/joiner disease-nodes synonyms :source_id :start kg/inner-join)
                     (kg/joiner synonym-nodes :end :name kg/inner-join))] 
