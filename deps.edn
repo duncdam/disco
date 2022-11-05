@@ -1,25 +1,19 @@
-{
-  :paths ["src" "resources"]
-  :version "0.1.0"
-  :deps {
-    org.clojure/clojure {:mvn/version "1.11.1"}
-    org.clojure/data.xml {:mvn/version "0.0.8"}
-    org.clojure/data.csv {:mvn/version "1.0.1"}
-    org.clojure/data.zip {:mvn/version "1.0.0"}
-    org.clojure/data.json {:mvn/version "2.4.0"}
-    clj-http/clj-http {:mvn/version "3.12.3"}
-    camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
-    org.clojure/tools.logging {:mvn/version "1.2.4"}
-  }
-  :aliases {
-    :umls {
-      :exec-fn knowledge-graph.stage-0.get-umls/run
-      :jvm-opts ["-Xmx10G"]
-    }
-    :stage-0 {:main-opts ["-m" "knowledge-graph.stage-0.launch-stage-0"]}
-    :stage-1 {:main-opts ["-m" "knowledge-graph.stage-1.launch-stage-1"]}
-    :stage-2 {:main-opts ["-m" "knowledge-graph.stage-2.launch-stage-2"]}
-    :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}
-  }
-}
+{:paths ["src" "resources"]
+ :version "0.1.0"
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}
+        org.clojure/data.xml {:mvn/version "0.0.8"}
+        org.clojure/data.csv {:mvn/version "1.0.1"}
+        org.clojure/data.zip {:mvn/version "1.0.0"}
+        org.clojure/data.json {:mvn/version "2.4.0"}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
+        com.taoensso/timbre {:mvn/version "5.2.1"}
+        org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.19.0"}
+        dk.ative/docjure {:mvn/version "1.18.0"}}
+ :aliases {:stage-0 {:main-opts ["-m" "knowledge-graph.stage-0.launch-stage-0"]
+                     :jvm-opts ["-Xmx10G"]}
+           :stage-1 {:main-opts ["-m" "knowledge-graph.stage-1.launch-stage-1"]
+                     :jvm-opts ["-Xmx6G"]}
+           :stage-2 {:main-opts ["-m" "knowledge-graph.stage-2.launch-stage-2"]}
+           :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}}}
 
