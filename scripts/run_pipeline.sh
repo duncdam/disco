@@ -15,19 +15,10 @@ if [[ ! -d ./resources/stage_2_outputs ]];
     mkdir ./resources/stage_2_outputs
 fi
 
-if [[ ! -d ./resources/stage_3_outputs ]];
-  then 
-    mkdir ./resources/stage_3_outputs
-fi
-
 
 echo "###################################"
 echo "STARTING STAGE 0"                 
 echo "###################################"
-
-echo "Preprocessing UMLS data"
-clj -X:umls
-echo "Finished processing UMLS data"
 
 clj -M:stage-0                  
 
@@ -52,10 +43,6 @@ echo "\n"
 echo "###################################"
 echo "STARTING STAGE 2"                 
 echo "###################################"
-
-echo "Staging altLabel relationship"
-clj -X:altLabel
-echo "Finish altLabel relationship"
 
 clj -M:stage-2
 
