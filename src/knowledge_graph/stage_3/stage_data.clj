@@ -4,7 +4,7 @@
    [clojure.set :as set]
    [clojure.data.csv :as csv]
    [knowledge-graph.module.module :as kg]
-   [clojure.tools.logging :as log]))
+   [taoensso.timbre :as log]))
 
 (defn read-file
   [file-path]
