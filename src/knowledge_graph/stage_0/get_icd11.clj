@@ -18,7 +18,6 @@
         (not= (:subClassOf %) (:id %)) (:subClassOf %)
         :else nil)))
        (map #(assoc % :id (str/replace (:id %) #"\." "")))
-       (map #(assoc % :id (str/join "_" ["ICD11" (:id %)])))
        (map #(select-keys % [:id :label :source_id :subClassOf]))))
 
 (defn get-icd11-mapping
@@ -41,6 +40,7 @@
   (let [icd11-info (get-icd11 file-path-info sheet-info)
         icd11-mapping (get-icd11-mapping file-path-mapping sheet-mapping)]
       (->> (kg/joiner icd11-info icd11-mapping :source_id :source_id kg/left-join)
-           (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source] output-path))
+           (map #(assoc % :synonym ""))
+           (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))
     ))
   

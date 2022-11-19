@@ -12,12 +12,12 @@
   [data]
   (let [z (z/xml-zip data)]
     (for [id             (xml-> z :Class (attr :rdf/about))
-          alternative_id (xml-> z :hasAlternativeId text)
           label          (xml-> z :label text)
+          source_id      (xml-> z :id text)
           subClassOf     (xml-> z :subClassOf (attr :rdf/resource))
           hasDbXref      (xml-> z :hasDbXref text)
           synonym        (xml-> z :hasExactSynonym text)]
-          {:id id :alternative_id alternative_id :label label :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym})))
+          {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -32,10 +32,9 @@
        (filter #(some? (:id %)))
        (map #(assoc % :id (last (str/split (:id %) #"/"))))
        (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
-       (map #(assoc % :dbXref_source (kg/create-source (:hasDbXref %) "DOID")))
-       (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
-       (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
-       (kg/write-csv [:id :alternative_id :label :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
+       (map #(assoc % :dbXref_source (kg/correct-source(first (str/split (:hasDbXref %) #":")))))
+       (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
+       (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
 
 (defn run [_]
   (let [url "https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology/doid.owl"

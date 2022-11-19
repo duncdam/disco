@@ -11,34 +11,35 @@
   [data]
   (let [z (z/xml-zip data)]
     (for [id (xml-> z :Class (attr :rdf/about))
-          label (xml-> z :Class :label text)      
+          label (xml-> z :Class :label text)
           subClassOf (xml-> z :Class :subClassOf (attr :rdf/resource))
-          dbXref (xml-> z :Class :hasDbXref text)
+          hasDbXref (xml-> z :Class :hasDbXref text)
           synonym (xml-> z :Class :alternative_term text)
           source_id (xml-> z :Class :notation text)]
-      {:id id :label label :subClassOf subClassOf :hasDbXref dbXref :synonym synonym :source_id source_id})))
+      {:id id :label label :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym :source_id source_id})))
 
 (defn get-orphanet
   [url output-path]
-  (->>
-   (client/get url {:as :stream})
-   :body
-   d-xml/parse
-   :content
-   (filter #(= (:tag %) :Class))
-   (map orphanet-map)
-   (apply concat)
-   (filter #(not= (str/lower-case (:source_id %)) "clinical subtype"))
-   (map #(assoc % :id (str/upper-case (last (str/split (:id %) #"/")))))
-   (map #(assoc % :subClassOf (str/upper-case (last (str/split (:subClassOf %) #"/")))))
-   (map #(assoc % :dbXref_source (kg/create-source (:hasDbXref %) "ORPHANET")))
-   (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
-   (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
-   (map #(select-keys % [:id :label :subClassOf :hasDbXref :synonym :dbXref_source :source_id]))
-   distinct
-   (kg/write-csv [:id :label :subClassOf :hasDbXref :dbXref_source :synonym :source_id] output-path)))
+  (->> (client/get url {:as :stream})
+       :body
+       d-xml/parse
+       :content
+       (filter #(= (:tag %) :Class))
+       (map orphanet-map)
+       (apply concat)
+       (filter #(not= (str/lower-case (:source_id %)) "clinical subtype"))
+       (map #(assoc % :id (str/upper-case (last (str/split (:id %) #"/")))))
+       (map #(assoc % :subClassOf (str/upper-case (last (str/split (:subClassOf %) #"/")))))
+       (map #(assoc % :dbXref_source (first (str/split (:hasDbXref %) #":"))))
+       (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
+       (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
+       (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
+       (map #(select-keys % [:id :label :subClassOf :hasDbXref :synonym :dbXref_source :source_id]))
+       distinct
+       (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path)
+      ))
 
-(defn run[_]
+(defn run [_]
   (let [url "https://www.orphadata.com/data/ontologies/ordo/last_version/ORDO_en_4.1.owl"
         output-path-orphanet "./resources/stage_0_outputs/orphanet.csv"]
     (get-orphanet url output-path-orphanet)))

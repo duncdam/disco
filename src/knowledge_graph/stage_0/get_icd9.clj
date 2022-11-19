@@ -10,13 +10,12 @@
 (defn file->map
   [file-path]
   (with-open [file (io/reader (io/resource file-path))]
-    (->>
-     (slurp file)
-     str/split-lines
-     (map #(str/split % #"\s{1,}"))
-     (cons ["id" "label"])
-     (map #(into [] [(first %) (str/join " " (rest %))]))
-     kg/csv->map)))
+    (->> (slurp file)
+         str/split-lines
+         (map #(str/split % #"\s{1,}"))
+         (cons ["id" "label"])
+         (map #(into [] [(first %) (str/join " " (rest %))]))
+         kg/csv->map)))
 
 (defn get-results
   [long-file-path short-file-path]
@@ -25,13 +24,14 @@
         icd9-short (->> (file->map short-file-path)
                         (map #(set/rename-keys % {:label :short_label})))]
 
-    (->>
-     (kg/joiner icd9-long icd9-short :id :id kg/left-join)
-     (filter #(some? (:id %)))
-     (map #(set/rename-keys % {:long_label :label :short_label :synonym}))
-     (map #(assoc % :source_id (:id %)))
-     (map #(assoc % :id (str/join "_" ["ICD9CM" (:id %)])))
-     (map #(select-keys % [:id :label :source_id :synonym])))))
+    (->> (kg/joiner icd9-long icd9-short :id :id kg/left-join)
+         (filter #(some? (:id %)))
+         (map #(set/rename-keys % {:long_label :label :short_label :synonym}))
+         (map #(assoc % :id (cond
+           (= (last (str/split (:id %) #"")) "0") (str/join "" (drop-last(str/split (:id %) #"")))
+           :else (:id %))))
+         (map #(assoc % :source_id (:id %)))
+         (map #(select-keys % [:id :label :source_id :synonym])))))
 
 (defn get-result-mapping
   [icd10-url snomed-file-path]
@@ -71,4 +71,5 @@
   (let [icd9-info (get-results long-file-path short-file-path)
         icd9-mapping (get-result-mapping icd10-url snomed-file-path)]
     (->> (kg/joiner icd9-info icd9-mapping :source_id :source_id kg/left-join) 
-         (kg/write-csv [:id :label :source_id :synonym :hasDbXref :dbXref_source] output-path))))
+         (map #(assoc % :subClassOf ""))
+         (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))))

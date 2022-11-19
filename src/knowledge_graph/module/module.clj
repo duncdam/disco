@@ -5,6 +5,20 @@
    [clojure.string :as str]
    [clojure.set :refer [difference intersection union]]))
 
+;; I stole this from https://stackoverflow.com/questions/47333668/split-lines-in-clojure-while-reading-from-file
+(defn lines-reducible [rdr]
+  (reify clojure.lang.IReduceInit
+    (reduce [this f init]
+      (try
+        (loop [state init]
+          (if (reduced? state)
+            @state
+            (if-let [line (.readLine rdr)]
+              (recur (f state line))
+              state)))
+        (finally
+          (.close rdr))))))
+
 (defn create-header
   [column is-stage]
   (if (true? is-stage)
@@ -62,32 +76,8 @@
                               (get right-idx % [{}])
                               (zipmap (set (union (keys (first left-coll)) (keys (first right-coll)))) (repeat nil))) join-keys))))
 
-(defn correct-source-id
+(defn correct-source
   [dbXref]
-  (let [processed-dbXref (
-    cond
-      (or (str/includes? dbXref "DOID") 
-          (str/includes? dbXref "EFO")
-          (str/includes? dbXref "HP")
-          (str/includes? dbXref "KEGG")
-          (str/includes? dbXref "MONDO")) (str/replace dbXref #":" "_")
-      (or (str/includes? dbXref "ICD")
-          (str/includes? (str/lower-case dbXref) "mesh")
-          (str/includes? dbXref "MSH")
-          (str/includes? dbXref "UMLS")
-          (str/includes? (str/lower-case dbXref) "snomedct")
-          (str/includes? dbXref "SCTID")
-          (str/includes? dbXref "NCI")
-          (str/includes? dbXref "MedDRA")) (str/replace dbXref #".*:" "")
-      (str/includes? (str/lower-case dbXref) "orphanet") (str/replace (str/lower-case dbXref) #"orphanet*[_|:]" "ORPHA:")
-      :else dbXref)]
-  (cond 
-    (or (str/includes? processed-dbXref "*") (str/includes? processed-dbXref "+")) (str/replace processed-dbXref #"[\*|\+]" "")
-    (str/includes? processed-dbXref ".")(str/replace processed-dbXref "." "")
-    :else processed-dbXref)))
-
-(defn create-source
-  [dbXref source]
   (cond
     (str/includes? dbXref "DOID") "DOID"
     (str/includes? dbXref "EFO") "EFO"
@@ -95,16 +85,38 @@
         (str/includes? dbXref "HP")) "HPO"
     (str/includes? dbXref "MONDO") "MONDO"
     (str/includes? dbXref "ICD9") "ICD9CM"
+    (or (str/includes? dbXref "ICDO")
+        (str/includes? dbXref "ICD-O")) "ICDO-3"
     (or (str/includes? dbXref "ICD10") 
         (str/includes? dbXref "ICD-10")) "ICD10CM"
+    (or (str/includes? dbXref "ICD11") 
+       (str/includes? dbXref "ICD-11")) "ICD11"
     (or (str/includes? dbXref "MSH") 
         (str/includes? (str/lower-case dbXref) "mesh")) "MESH"
     (str/includes? dbXref "UMLS") "UMLS"
+    (str/includes? dbXref "KEGG") "KEGG"
     (or (str/includes? dbXref "SNOMEDCT")
         (str/includes? dbXref "SCTID")) "SNOMEDCT"
     (str/includes? dbXref "NCI") "NCIT"
     (str/includes? (str/lower-case dbXref) "orpha") "ORPHANET"
     (or (str/includes? (str/lower-case dbXref) "meddra")
         (str/includes? dbXref "MDR")) "MEDDRA"
-    :else source
+    (nil? dbXref) ""
+    :else dbXref
   ))
+
+(defn correct-xref-id
+  [dbXref]
+  (let [processed-dbXref (
+    cond
+      (nil? dbXref) ""
+      (or (str/includes? dbXref "DOID") 
+          (str/includes? dbXref "EFO")
+          (str/includes? dbXref "HP")
+          (str/includes? dbXref "MONDO")) dbXref 
+      (str/includes? (str/lower-case dbXref) "orphanet") (str/replace (str/lower-case dbXref) #"orphanet*[_|:]" "ORPHA:")
+      :else (last (str/split dbXref #":")))]
+  (cond 
+    (or (str/includes? processed-dbXref "*") (str/includes? processed-dbXref "+")) (str/replace processed-dbXref #"[\*|\+]" "")
+    (str/includes? processed-dbXref ".")(str/replace processed-dbXref "." "")
+    :else processed-dbXref)))

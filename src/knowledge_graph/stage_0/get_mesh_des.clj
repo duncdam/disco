@@ -38,14 +38,15 @@
                          (map #(select-keys % [:subClassOf :parent_tree_location])))
         mesh-des (kg/joiner mesh-data mesh-parent :tree_location :parent_tree_location kg/left-join)]
         (->> (map #(assoc % :source_id (:id %)) mesh-des)
-             (map #(assoc % :id (str/join "_" ["MESH" (:id %)])))
-             (map #(select-keys % [:id :label :source_id :synonym :subClassOf]))
+             (map #(assoc % :hasDbXref ""))
+             (map #(assoc % :dbXref_source ""))
+             (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
              distinct 
-             (kg/write-csv [:id :label :source_id :synonym :subClassOf] output_path))))
+             (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path))))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2022.xml"
-        output "./resources/stage_0_outputs/mesh_descriptor.csv"]
+        output "./resources/stage_0_outputs/mesh_des.csv"]
     (get-results url output)))
 
 

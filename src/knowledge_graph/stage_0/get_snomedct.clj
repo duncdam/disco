@@ -15,10 +15,12 @@
          (map #(set/rename-keys % {:SNOMED_CID :id :SNOMED_FSN :label}))
          (map #(assoc % :hasDbXref (:UMLS_CUI %)))
          (map #(assoc % :dbXref_source "UMLS"))
-         (map #(select-keys % [:id :label :hasDbXref :dbXref_source]))
+         (map #(assoc % :subClassOf ""))
+         (map #(assoc % :synonym ""))
+         (map #(assoc % :source_id (:id %)))
+         (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
          distinct
-         (map #(assoc % :id (str/join "_" ["SNOMEDCT" (:id %)])))
-         (kg/write-csv [:id :label :hasDbXref :dbXref_source] output-path))))
+         (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))))
 
 (defn run [_]
   (let [file-path "downloads/SNOMEDCT_CORE_SUBSET_202205.txt"

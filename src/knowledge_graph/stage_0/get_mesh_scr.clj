@@ -38,12 +38,15 @@
                          distinct)
           mesh-scr-disease (kg/joiner mesh-scr mesh-desc :subClassOf :source_id kg/inner-join)]
       (->>(map #(assoc % :source_id (:id %)) mesh-scr-disease)
-          (map #(assoc % :id (str/join "_" ["MESH" (:id %)])))
-          (kg/write-csv [:id :label :source_id :synonym :subClassOf]  output_path)))))
+          (map #(assoc % :hasDbXref ""))
+          (map #(assoc % :dbXref_source ""))
+          (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
+          distinct 
+          (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
 
 (defn run [_]
   (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
         output-path "./resources/stage_0_outputs/mesh_scr.csv"
-        mesh-desc-path "stage_0_outputs/mesh_descriptor.csv"]
+        mesh-desc-path "stage_0_outputs/mesh_des.csv"]
     (get-results url mesh-desc-path output-path)))
 

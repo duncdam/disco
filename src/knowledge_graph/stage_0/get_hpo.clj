@@ -13,11 +13,11 @@
   (let [z (z/xml-zip data)]
     (for [id         (xml-> z :Class (attr :rdf/about))
           label      (xml-> z :Class :label text)
-          alternative_id  (xml-> z :Class :hasAlternativeId text)
+          source_id  (xml-> z :Class :id text)
           subClassOf  (xml-> z :Class :subClassOf (attr :rdf/resource))
           dbXref      (xml-> z :Class :hasDbXref text)
           synonym     (concat (xml-> z :Class :hasExactSynonym text) (xml-> z :Class :hasRelatedSynonym text) )]
-          {:id id :label label :alternative_id alternative_id :subClassOf subClassOf :hasDbXref dbXref :synonym synonym})))
+          {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref dbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -34,12 +34,11 @@
    (filter #(str/includes? (:id %) "HP_"))
    (map #(assoc % :id (last (str/split (:id %) #"/"))))
    (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
-   (map #(assoc % :dbXref_source (kg/create-source (:hasDbXref %) "HPO")))
-   (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
-   (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
-   (map #(select-keys % [:id :label :subClassOf :hasDbXref :synonym :dbXref_source]))
+   (map #(assoc % :dbXref_source (kg/correct-source(first (str/split (:hasDbXref %) #":")))))
+   (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
+   (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :synonym :dbXref_source]))
    distinct
-   (kg/write-csv [:id :label :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
+   (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
 
 (defn run [_]
   (let [url "http://purl.obolibrary.org/obo/hp.owl"

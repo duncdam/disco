@@ -18,16 +18,22 @@
   [file-path-concept file-path-name]
   (with-open [concept-file (io/reader (io/resource file-path-concept))
               name-file (io/reader (io/resource file-path-name))]
-    (let [concept-map (->> (slurp concept-file)
+    (let [concept-syn (->> (slurp concept-file)
                            str/split-lines
                            (map #(str/split % #"\|"))
                            (cons ["CUI" "TS" "STT" "ISPREF" "AUI" "SAUI" "SCUI" "SDUI" "SAB" "TTY" "CODE" "STR" "SUPPRESS"])
                            kg/csv->map
                            (filter #(not= (:CUI %) "#CUI"))
-                           (map #(set/rename-keys % {:CUI :id :STT :label-type :CODE :hasDbXref :SAB :dbXref_source :STR :synonym}))
-                           (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
-                           (map #(assoc % :dbXref_source (kg/create-source (:dbXref_source %) (:dbXref_source %))))
-                           (map #(select-keys % [:id :hasDbXref :dbXref_source :synonym])))
+                           (map #(assoc % :hasDbXref (cond
+                            (or (= (:SAB %) "MONDO")
+                                (= (:SAB %) "HPO")
+                                (= (:SAB %) "ORDO")) (:SDUI %)
+                            :else (:CODE %)
+                           )))
+                           (map #(set/rename-keys % {:CUI :id :STR :synonym}))
+                           (map #(assoc % :dbXref_source (kg/correct-source (:SAB %))))
+                           (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
+                           (map #(select-keys % [:id :synonym :hasDbXref :dbXref_source])))
           name-map (->> (slurp name-file)
                         str/split-lines
                         (map #(str/split % #"\|"))
@@ -36,7 +42,7 @@
                         (filter #(not= (:CUI %) "#CUI"))
                         (map #(set/rename-keys % {:CUI :id :name :label}))
                         (map #(select-keys % [:id :label])))
-          medgen (kg/joiner name-map concept-map :id :id kg/inner-join)]
+          medgen (kg/joiner name-map concept-syn :id :id kg/inner-join)]
           (->> (mapv #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym]) medgen)
                distinct))))
 
@@ -46,20 +52,18 @@
     (let [data-map(->> (csv/read-csv file :separator \|)
                         kg/csv->map)
           medgen-mapping (->> (map #(set/rename-keys % {:#CUI :id :source_id :hasDbXref :source :dbXref_source}) data-map)
-                              (map #(assoc % :dbXref_source (str/upper-case (:dbXref_source %))))
+                              (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
+                              (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
                               (map #(assoc % :hasDbXref (str/upper-case (:hasDbXref %))))
-                              (map #(assoc % :hasDbXref (kg/correct-source-id (:hasDbXref %))))
                               (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
-          medgen-umls (->> (map #(assoc % :hasDbXref (str/join ":" ["UMLS" (:id %)])) medgen-mapping)
-                            (map #(assoc % :dbXref_source "UMLS"))
-                            (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
+          medgen-umls (->>  (map #(assoc % :dbXref_source "UMLS") data-map)
+                            (map #(assoc % :hasDbXref (:#CUI %)))
+                            (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))
+                            distinct)
           mapping (->> (concat medgen-mapping  medgen-umls)
                         distinct)]
           (->> (filter #(some? (:id %)) mapping)
-               (map #(set/rename-keys % {:hasDbXref :hasDbXref_1 :dbXref_source :dbXref_source_1})) 
-               (mapv #(select-keys % [:id :hasDbXref_1 :dbXref_source_1]))
                distinct))))
-
 
 (defn file-path
   [save-path fname]
@@ -85,12 +89,14 @@
   (download-file name-url save-path fname-name)
   (download-file mapping-url save-path fname-mapping)
   (let [medgen-info (get-results file-path-concept file-path-name)
-        medgen-mapping (get-result-mapping file-path-mapping)
+        medgen-mapping (->> (get-result-mapping file-path-mapping)
+                            (map #(set/rename-keys % {:hasDbXref :hasDbXref_1 :dbXref_source :dbXref_source_1})))
         medgen-combined (kg/joiner medgen-info medgen-mapping :id :id kg/left-join)
         medgen-dbXref (map #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym]) medgen-combined)
-        medgen-dbXref-1 (->> (map #(set/rename-keys % {:hasDbXref_1 :hasDbXref :dbXref_source_1 :dbXref_source :hasDbXref :_ :dbXref_source :_}) medgen-combined)
-                             (map #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym])))
+        medgen-dbXref-1 (->> (map #(select-keys % [:id :label :hasDbXref_1 :dbXref_source_1 :synonym]) medgen-combined)
+                             (map #(set/rename-keys % {:hasDbXref_1 :hasDbXref :dbXref_source_1 :dbXref_source})))
         medgen (->> (concat medgen-dbXref medgen-dbXref-1)
+                    (map #(assoc % :subClassOf ""))
+                    (map #(assoc % :source_id (:id %)))
                     distinct)]
-    (->>(map #(assoc % :id (str/join "_" ["MEDGEN" (:id %)])) medgen)
-        (kg/write-csv [:id :label :hasDbXref :dbXref_source :synonym] output-path))))
+    (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path medgen)))

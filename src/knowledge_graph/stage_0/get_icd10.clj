@@ -78,8 +78,7 @@
                                      (process-diag-data))
         icd10-data (->> (concat one-diag-depth-children two-diag-children-data three-diag-children-data)
                         (map #(assoc % :subClassOf (first (str/split (:id %) #"\."))))
-                        (map #(assoc % :source_id (str/replace (:id %), #"\." "")))
-                        (map #(assoc % :id (str/join "_" ["ICD10CM" (str/replace (:id %), #"\." "")]))))]
+                        (map #(assoc % :source_id (str/replace (:id %) #"\." ""))))]
       (mapv #(select-keys % [:id :label :synonym :source_id :subClassOf]) icd10-data)))
 
 (defn get-icd10-mapping
@@ -101,6 +100,7 @@
            (map #(assoc % :dbXref_source "SNOMEDCT"))
            (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
            (filter #(some? (:source_id %)))
+           (map #(assoc % :source_id (str/replace (:source_id %) "." "")))
            (mapv #(select-keys % [:source_id :hasDbXref :dbXref_source :synonym_1]))))))
       
 (def output-path "./resources/stage_0_outputs/icd10.csv")
@@ -117,5 +117,6 @@
                              (map #(select-keys % [:id :label :source_id :synonym :subClassOf :hasDbXref :dbXref_source])))
         icd10 (concat icd10-synonym icd10-synonym-1)]
     (->> (filter #(not= (:label %) (:synonym %)) icd10)
+         (map #(assoc % :id (str/replace (:id %) #"\." "")))
          distinct
          (kg/write-csv [:id :label :source_id :synonym :subClassOf :hasDbXref :dbXref_source] output-path))))

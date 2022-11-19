@@ -26,7 +26,7 @@
         (map #(assoc % :is_yes_2? (re-matches #"\w{2}\d{2}" (:subClassOf %))))
         (filter #(or (not (str/blank? (:is_yes? %))) (not (str/blank? (:is_yes_2? %)))))))
 
-(defn get-kegg-mapping
+(defn get-kegg-subClassOf
   [url]
   (let [file (->> (client/get url {:as :reader})
                   (:body))
@@ -40,23 +40,58 @@
         results (concat result-depth-2 result-depth-3)]
     (map #(select-keys % [:source_id :subClassOf]) results)))
 
-(defn get-kegg
-  [url]
-  (let [file (->> (client/get url {:as :reader})
-                  :body)
-        data (->> (csv/read-csv file :separator \tab)
-                  (cons ["code" "label"])
-                  (kg/csv->map)
-                  (map #(assoc % :id (str/replace (:code %) #"ds:" "KEGG_")))
-                  (map #(assoc % :source_id (str/replace (:code %) #"ds:" ""))))]
-    (map #(select-keys % [:id :label :source_id]) data)))
+(defn get-kegg-disease
+  [url-disease url-dp-mapping]
+  (let [disease-file (->> (client/get url-disease {:as :reader})
+                          :body)
+        disease-data (->> (csv/read-csv disease-file :separator \tab)
+                          (cons ["code" "label"])
+                          (kg/csv->map)
+                          (map #(assoc % :id (str/replace (:code %) #"ds:" "KEGG_")))
+                          (map #(assoc % :source_id (str/replace (:code %) #"ds:" ""))))
+        disease-mapping-file (->> (client/get url-dp-mapping {:as :reader})
+                                  :body)
+        disease-mapping (->> (csv/read-csv disease-mapping-file :separator \tab)
+                             (cons ["pathway_id" "disease_id"])
+                             kg/csv->map
+                             (map #(assoc % :id (str/replace (:disease_id %) #"ds:" "KEGG_")))
+                             (map #(assoc % :hasDbXref (str/replace (:pathway_id %) #"path:hsa" ""))))]
+    (->> (kg/joiner disease-data disease-mapping :id :id kg/left-join )
+         (map #(select-keys % [:id :label :source_id :hasDbXref])))))
+
+(defn get-kegg-pathway-disease
+  [url-pathway url-dp-mapping]
+  (let [pathway-info-file (->> (client/get url-pathway {:as :read})
+                          :body)
+        pathway-info (->> (csv/read-csv pathway-info-file :separator \tab)
+                          (cons ["code" "label"])
+                          (kg/csv->map)
+                          (map #(assoc % :id (str/replace (:code %) #"path:hsa" "KEGG_" )))
+                          (map #(assoc % :source_id (str/replace (:code %) #"path:hsa" "")))
+                          (map #(assoc % :label (str/replace (:label %) " - Homo sapiens (human)" "")))
+                          (map #(select-keys % [:id :label :source_id])))
+        dp-mapping-file (->> (client/get url-dp-mapping {:as :read})
+                             :body) 
+        dp-mapping  (->> (csv/read-csv dp-mapping-file :separator \tab) 
+                         (cons ["pathway_id" "disease_id"])
+                         kg/csv->map
+                         (map #(assoc % :id (str/replace (:pathway_id %) #"path:hsa" "KEGG_" )))
+                         (map #(assoc % :hasDbXref (str/replace (:disease_id %) #"ds:" "" ))))]
+    (->> (kg/joiner pathway-info dp-mapping :id :id kg/inner-join)
+         (map #(select-keys % [:id :label :source_id :hasDbXref])))))
 
 (def url-info "https://rest.kegg.jp/list/disease")
-(def url-mapping "https://rest.kegg.jp/get/br:br08403/json")
+(def url-subClassOf "https://rest.kegg.jp/get/br:br08403/json")
+(def url-pathway "https://rest.kegg.jp/list/pathway/hsa")
+(def url-dp-mapping "https://rest.kegg.jp/link/disease/pathway")
 (def output-path "./resources/stage_0_outputs/kegg.csv")
 
 (defn run [_]
-  (let [kegg-info (get-kegg url-info)
-        kegg-mapping (get-kegg-mapping url-mapping)]
-    (->> (kg/joiner kegg-info kegg-mapping :source_id :source_id kg/left-join)
-         (kg/write-csv [:id :label :source_id :subClassOf] output-path))))
+  (let [kegg-disease (get-kegg-disease url-info url-dp-mapping)
+        kegg-disease-pathway (get-kegg-pathway-disease url-pathway url-dp-mapping)
+        kegg (concat kegg-disease kegg-disease-pathway)
+        kegg-mapping (get-kegg-subClassOf url-subClassOf)]
+    (->> (kg/joiner kegg kegg-mapping :source_id :source_id kg/left-join)
+         (map #(assoc % :dbXref_source "KEGG"))
+         (map #(assoc % :synonym ""))
+         (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))))
