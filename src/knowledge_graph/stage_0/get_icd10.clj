@@ -60,7 +60,8 @@
        (map #(assoc % :data (flatten-column %)))     
        (map #(:data %))
        (apply concat)
-       (filter #(not (str/blank? (:synonym %))))))
+      ;;  (filter #(not (str/blank? (:synonym %))))
+       ))
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
