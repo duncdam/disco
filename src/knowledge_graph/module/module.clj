@@ -33,7 +33,7 @@
   ([is-stage sep final-columns path data]
    (let [columns final-columns
          headers (map #(create-header % is-stage) final-columns)
-         rows (mapv #(mapv % columns) data)]
+         rows (map #(map % columns) data)]
      (with-open [f (io/writer path)]
        (csv/write-csv f (cons headers rows) :separator sep)))))
 
