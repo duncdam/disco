@@ -15,8 +15,6 @@
            :stage-1 {:main-opts ["-m" "knowledge-graph.stage-1.launch-stage-1"]
                      :jvm-opts ["-Xmx6G"]}
            :stage-2 {:main-opts ["-m" "knowledge-graph.stage-2.launch-stage-2"]
-                     :jvm-opts ["-Xmx12G"]}
-           :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}
-           :umls-medgen {:exec-fn knowledge-graph.stage-1.combine-umls-medgen/run
-                         :jvm-opts ["-Xmx10G"]}}}
+                     :jvm-opts ["-Xmx10G"]}
+           :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}}}
 
