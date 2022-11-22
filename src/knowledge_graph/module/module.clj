@@ -46,6 +46,7 @@
            repeat)
    (rest csv-data)))
 
+;; found this sql join in clojure here: https://gist.github.com/Chort409/eb46f4d95261d9af51e9
 (defn inner-join
   [left-keys right-keys]
   (intersection (set left-keys) (set right-keys)))
