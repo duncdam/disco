@@ -3,7 +3,6 @@
    [clojure.data.csv :as csv]
    [clojure.java.io :as io]
    [clojure.set :as set]
-   [clojure.string :as str]
    [knowledge-graph.module.module :as kg]))
 
 (defn get-snomedct
