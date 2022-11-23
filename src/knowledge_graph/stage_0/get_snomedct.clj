@@ -24,4 +24,4 @@
 (defn run [_]
   (let [file-path "downloads/SNOMEDCT_CORE_SUBSET_202205.txt"
         output-path "./resources/stage_0_outputs/snomedct.csv"]
-      (get-snomedct file-path output-path)))
+    (get-snomedct file-path output-path)))

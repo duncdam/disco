@@ -15,9 +15,9 @@
                     (map #(assoc % :dbXref_source "NCIT"))
                     (map #(assoc % :subClassOf ""))
                     (map #(assoc % :source_id (:id %))))]
-        (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path meddra)))
+    (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path meddra)))
 
 (defn run [_]
   (let [url "https://ncit.nci.nih.gov/ncitbrowser/ajax?action=export_maps_to_mapping&target=MedDRA"
         output-path "./resources/stage_0_outputs/meddra.csv"]
-        (get-results url output-path)))
+    (get-results url output-path)))

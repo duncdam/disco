@@ -25,11 +25,10 @@
                            kg/csv->map
                            (filter #(not= (:CUI %) "#CUI"))
                            (map #(assoc % :hasDbXref (cond
-                            (or (= (:SAB %) "MONDO")
-                                (= (:SAB %) "HPO")
-                                (= (:SAB %) "ORDO")) (:SDUI %)
-                            :else (:CODE %)
-                           )))
+                                                       (or (= (:SAB %) "MONDO")
+                                                           (= (:SAB %) "HPO")
+                                                           (= (:SAB %) "ORDO")) (:SDUI %)
+                                                       :else (:CODE %))))
                            (map #(set/rename-keys % {:CUI :id :STR :synonym}))
                            (map #(assoc % :dbXref_source (kg/correct-source (:SAB %))))
                            (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
@@ -43,13 +42,13 @@
                         (map #(set/rename-keys % {:CUI :id :name :label}))
                         (map #(select-keys % [:id :label])))
           medgen (kg/joiner name-map concept-syn :id :id kg/inner-join)]
-          (->> (mapv #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym]) medgen)
-               distinct))))
+      (->> (mapv #(select-keys % [:id :label :hasDbXref :dbXref_source :synonym]) medgen)
+           distinct))))
 
 (defn get-result-mapping
   [file-path]
   (with-open [file (io/reader (io/resource file-path))]
-    (let [data-map(->> (csv/read-csv file :separator \|)
+    (let [data-map (->> (csv/read-csv file :separator \|)
                         kg/csv->map)
           medgen-mapping (->> (map #(set/rename-keys % {:#CUI :id :source_id :hasDbXref :source :dbXref_source}) data-map)
                               (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
@@ -61,9 +60,9 @@
                             (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))
                             distinct)
           mapping (->> (concat medgen-mapping  medgen-umls)
-                        distinct)]
-          (->> (filter #(some? (:id %)) mapping)
-               distinct))))
+                       distinct)]
+      (->> (filter #(some? (:id %)) mapping)
+           distinct))))
 
 (defn file-path
   [save-path fname]

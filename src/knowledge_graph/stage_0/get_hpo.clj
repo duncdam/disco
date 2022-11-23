@@ -16,8 +16,8 @@
           source_id  (xml-> z :Class :id text)
           subClassOf  (xml-> z :Class :subClassOf (attr :rdf/resource))
           dbXref      (xml-> z :Class :hasDbXref text)
-          synonym     (concat (xml-> z :Class :hasExactSynonym text) (xml-> z :Class :hasRelatedSynonym text) )]
-          {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref dbXref :synonym synonym})))
+          synonym     (concat (xml-> z :Class :hasExactSynonym text) (xml-> z :Class :hasRelatedSynonym text))]
+      {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref dbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -27,14 +27,15 @@
    :body
    (d-xml/parse)
    :content
-   (filter #(= (:tag %) :Class))  
+   (filter #(= (:tag %) :Class))
    (map class-map)
    (apply concat)
    (filter #(some? (:id %)))
    (filter #(str/includes? (:id %) "HP_"))
    (map #(assoc % :id (last (str/split (:id %) #"/"))))
    (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
-   (map #(assoc % :dbXref_source (kg/correct-source(first (str/split (:hasDbXref %) #":")))))
+   (map #(assoc % :subClassOf (str/replace (:subClassOf %) #"_" ":")))
+   (map #(assoc % :dbXref_source (kg/correct-source (first (str/split (:hasDbXref %) #":")))))
    (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
    (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :synonym :dbXref_source]))
    distinct

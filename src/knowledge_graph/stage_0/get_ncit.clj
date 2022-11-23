@@ -11,11 +11,11 @@
 (defn csv->map
   [csv-data]
   (map zipmap
-        (->> (first csv-data)
+       (->> (first csv-data)
             (map #(csk/->camelCase %))
             (map keyword)
             repeat)
-        (rest csv-data)))
+       (rest csv-data)))
 
 (defn flatten-synonym
   [m]
@@ -33,28 +33,28 @@
     (let [data (->> (kg/lines-reducible file)
                     vec
                     (map #(str/split % #"\t"))
-                    (cons ["id" "_" "subClassOf" "synonym" "_" "label" "status" "type"])      
+                    (cons ["id" "_" "subClassOf" "synonym" "_" "label" "status" "type"])
                     kg/csv->map
                     (filter #(not (str/blank? (:type %))))
                     ;; filter for disease and syndrome semantic types only
-                    (filter #(or 
-                      (str/includes? (:type %) "Finding")
-                      (str/includes? (:type %) "Disease or Syndrome") 
-                      (str/includes? (:type %) "Mental or Behavioral Dysfunction")
-                      (str/includes? (:type %) "Neoplastic Process")
-                      (str/includes? (:type %) "Injury or Poisoning")
-                      (str/includes? (:type %) "Pathologic Function")
-                      (str/includes? (:type %) "Sign or Symptom")))
-                    (filter #(not (or 
-                      (str/includes? (:synonym %) "Mouse")
-                      (str/includes? (:synonym %) "Rat"))))
+                    (filter #(or
+                              (str/includes? (:type %) "Finding")
+                              (str/includes? (:type %) "Disease or Syndrome")
+                              (str/includes? (:type %) "Mental or Behavioral Dysfunction")
+                              (str/includes? (:type %) "Neoplastic Process")
+                              (str/includes? (:type %) "Injury or Poisoning")
+                              (str/includes? (:type %) "Pathologic Function")
+                              (str/includes? (:type %) "Sign or Symptom")))
+                    (filter #(not (or
+                                   (str/includes? (:synonym %) "Mouse")
+                                   (str/includes? (:synonym %) "Rat"))))
                     (filter #(not (str/includes? (str/lower-case (:status %)) "obsolete")))
                     (map #(select-keys % [:id :synonym :subClassOf :label]))
                     (map #(assoc % :subClassOf (str/split (:subClassOf %) #"\|")))
                     (map #(assoc % :synonym (str/split (:synonym %) #"\|")))
-                    (map #(assoc % :label (cond 
-                      (not (str/blank? (:label %))) (:label %)
-                      :else (first (:synonym %))))))
+                    (map #(assoc % :label (cond
+                                            (not (str/blank? (:label %))) (:label %)
+                                            :else (first (:synonym %))))))
           unpacked-synonym (->> (map #(select-keys % [:id :label :synonym]) data)
                                 (map #(assoc % :unpacked_synonym (flatten-synonym %)))
                                 (map #(:unpacked_synonym %))
@@ -70,29 +70,29 @@
 (defn get-ncit-mapping
   [neoplasm-url umls-url]
   (let [data-neoplasm-map (->> (client/get neoplasm-url {:as :reader})
-                                :body
-                                csv/read-csv
-                                csv->map)
+                               :body
+                               csv/read-csv
+                               csv->map)
         data-umls-map (->> (csv/read-csv (->> (client/get umls-url {:as :reader})
-                                              :body) 
-                            :separator \|)
-                            (cons ["id" "hasDbXref"])
-                            (map #(take 2 %))
-                            csv->map)
+                                              :body)
+                                         :separator \|)
+                           (cons ["id" "hasDbXref"])
+                           (map #(take 2 %))
+                           csv->map)
         ncit-umls-mapping (->> (map #(assoc % :dbXref_source "UMLS") data-umls-map)
                                (filter #(not (str/includes? (:hasDbXref %) "CL")))
-                               (mapv #(select-keys % [:id :hasDbXref :dbXref_source ])))
+                               (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
         ncit-medgen-mapping (->> (map #(assoc % :dbXref_source "MEDGEN") data-umls-map)
                                  (filter #(not (str/includes? (:hasDbXref %) "CL")))
-                                 (mapv #(select-keys % [:id :hasDbXref :dbXref_source ])))
+                                 (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
         ncit-neoplasm-mapping (->> (map #(set/rename-keys % {:ncItCode :id :sourceCode :hasDbXref :ncImSource :dbXref_source}) data-neoplasm-map)
                                    (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
                                    (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
-                                   (mapv #(select-keys % [:id :hasDbXref :dbXref_source ])))
+                                   (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
         ncit-mapping (->> (concat ncit-umls-mapping ncit-medgen-mapping ncit-neoplasm-mapping)
                           distinct)]
-        (->> (filter #(not= (:hasDbXref %) "") ncit-mapping)
-             (map #(select-keys % [:id :hasDbXref :dbXref_source :synonym])))))
+    (->> (filter #(not= (:hasDbXref %) "") ncit-mapping)
+         (map #(select-keys % [:id :hasDbXref :dbXref_source :synonym])))))
 
 (def output-path "./resources/stage_0_outputs/ncit.csv")
 (def ncit-file-path "downloads/Thesaurus.txt")

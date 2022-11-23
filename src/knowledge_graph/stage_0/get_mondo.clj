@@ -22,7 +22,7 @@
 
 (defn get-results
   [file-path output_path]
-  (with-open [file (io/reader(io/resource file-path))]
+  (with-open [file (io/reader (io/resource file-path))]
     (let [data  (->>  (d-xml/parse file)
                       :content
                       (filter #(= (:tag %) :Class))
@@ -32,13 +32,13 @@
                       (filter #(or (str/includes? (:is_disease %) "disease") (str/includes? (:is_disease %) "disorder") (str/includes? (:is_disease %) "syndrome")))
                       (map #(assoc % :id (last (str/split (:id %) #"/"))))
                       (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
+                      (map #(assoc % :subClassOf (str/replace (:subClassOf %) #"_" ":")))
                       (map #(assoc % :dbXref_source (first (str/split (:hasDbXref %) #":"))))
                       (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
                       (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
-                      (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
-                      )]
+                      (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." ""))))]
       (->> (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :synonym :dbXref_source]) data)
-            distinct
+           distinct
            (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
 
 (defn run [_]

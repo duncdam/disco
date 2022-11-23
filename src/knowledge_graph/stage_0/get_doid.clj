@@ -17,7 +17,7 @@
           subClassOf     (xml-> z :subClassOf (attr :rdf/resource))
           hasDbXref      (xml-> z :hasDbXref text)
           synonym        (xml-> z :hasExactSynonym text)]
-          {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym})))
+      {:id id :label label :source_id source_id :subClassOf subClassOf :hasDbXref hasDbXref :synonym synonym})))
 
 (defn get-results
   "Download xml file, parse for necessary information, and write as csv output"
@@ -32,7 +32,8 @@
        (filter #(some? (:id %)))
        (map #(assoc % :id (last (str/split (:id %) #"/"))))
        (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
-       (map #(assoc % :dbXref_source (kg/correct-source(first (str/split (:hasDbXref %) #":")))))
+       (map #(assoc % :subClassOf (str/replace (:subClassOf %) #"_" ":")))
+       (map #(assoc % :dbXref_source (kg/correct-source (first (str/split (:hasDbXref %) #":")))))
        (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
        (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))
 

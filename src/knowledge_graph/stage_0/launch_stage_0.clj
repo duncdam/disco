@@ -14,8 +14,8 @@
    [knowledge-graph.stage-0.get-ncit :as ncit]
    [knowledge-graph.stage-0.get-medgen :as medgen]
    [knowledge-graph.stage-0.get-meddra :as meddra]
-   [knowledge-graph.stage-0.get-kegg :as kegg] 
-   [knowledge-graph.stage-0.get-umls :as umls] 
+   [knowledge-graph.stage-0.get-kegg :as kegg]
+   [knowledge-graph.stage-0.get-umls :as umls]
    [taoensso.timbre :as log]))
 
 (defn -main []
@@ -50,6 +50,5 @@
   (kegg/run '_)
   (log/info "finished getting KEGG")
   (umls/run '_)
-  (log/info "finished getting UMLS")
-)
+  (log/info "finished getting UMLS"))
 

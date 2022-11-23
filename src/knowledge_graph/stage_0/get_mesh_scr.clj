@@ -21,32 +21,31 @@
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
-  [url mesh-desc-path output_path]
-  (with-open [file (io/reader (io/resource mesh-desc-path))]
-    (let [mesh-scr (->> (client/get url {:as :stream})
-                        :body
-                        (d-xml/parse)
+  [scr-path mesh-desc-path output_path]
+  (with-open [des-file (io/reader (io/resource mesh-desc-path))
+              scr-file (io/reader (io/resource scr-path))]
+    (let [mesh-scr (->> (d-xml/parse scr-file)
                         :content
                         (filter #(= (:tag %) :SupplementalRecord))
                         (map class-map)
                         (apply concat)
                         (filter #(some? (:id %)))
                         distinct)
-          mesh-desc (->> (csv/read-csv file :separator \tab)
+          mesh-desc (->> (csv/read-csv des-file :separator \tab)
                          kg/csv->map
                          (map #(select-keys % [:source_id]))
                          distinct)
           mesh-scr-disease (kg/joiner mesh-scr mesh-desc :subClassOf :source_id kg/inner-join)]
-      (->>(map #(assoc % :source_id (:id %)) mesh-scr-disease)
-          (map #(assoc % :hasDbXref ""))
-          (map #(assoc % :dbXref_source ""))
-          (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
-          distinct 
-          (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
+      (->> (map #(assoc % :source_id (:id %)) mesh-scr-disease)
+           (map #(assoc % :hasDbXref ""))
+           (map #(assoc % :dbXref_source ""))
+           (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
+           distinct
+           (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
 
 (defn run [_]
-  (let [url "https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/supp2022.xml"
+  (let [scr-file "downloads/supp2022.xml"
         output-path "./resources/stage_0_outputs/mesh_scr.csv"
         mesh-desc-path "stage_0_outputs/mesh_des.csv"]
-    (get-results url mesh-desc-path output-path)))
+    (get-results scr-file mesh-desc-path output-path)))
 

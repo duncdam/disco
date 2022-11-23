@@ -28,8 +28,8 @@
          (filter #(some? (:id %)))
          (map #(set/rename-keys % {:long_label :label :short_label :synonym}))
          (map #(assoc % :id (cond
-           (= (last (str/split (:id %) #"")) "0") (str/join "" (drop-last(str/split (:id %) #"")))
-           :else (:id %))))
+                              (= (last (str/split (:id %) #"")) "0") (str/join "" (drop-last (str/split (:id %) #"")))
+                              :else (:id %))))
          (map #(assoc % :source_id (:id %)))
          (map #(select-keys % [:id :label :source_id :synonym])))))
 
@@ -41,24 +41,24 @@
                             kg/csv->map
                             (filter #(not= (:id9cm %) ""))
                             (map #(assoc % :dbXref_source "ICD10CM"))
-                            (map #(set/rename-keys % {:icd9cm :id :icd10cm :hasDbXref }))
+                            (map #(set/rename-keys % {:icd9cm :id :icd10cm :hasDbXref}))
                             (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
         icd9-snomed-map (with-open [file (io/reader (io/resource snomed-file-path))]
-                            (->>  (slurp file)
-                                  str/split-lines
-                                  (map #(str/split % #"\t"))
-                                  (cons ["ICD_CODE" "ICD_NAME" "IS_CURRENT_ICD" "IP_USAGE" "OP_USAGE" "AVG_USAGE" "IS_NEC" "SNOMED_CID" "SNOMED_FSN" "IS_1-1MAP" "CORE_USAGE" "IN_CORE" ])
-                                  kg/csv->map
-                                  (filter #(not (str/includes? (:ICD_CODE %) "ICD_CODE")))
-                                  (map #(assoc % :hasDbXref (:SNOMED_CID %)))
-                                  (map #(assoc % :dbXref_source "SNOMED_CT"))
-                                  (map #(assoc % :id (:ICD_CODE %)))
-                                  (map #(assoc % :id (str/replace (:id %) "." "")))
-                                  (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))))
+                          (->>  (slurp file)
+                                str/split-lines
+                                (map #(str/split % #"\t"))
+                                (cons ["ICD_CODE" "ICD_NAME" "IS_CURRENT_ICD" "IP_USAGE" "OP_USAGE" "AVG_USAGE" "IS_NEC" "SNOMED_CID" "SNOMED_FSN" "IS_1-1MAP" "CORE_USAGE" "IN_CORE"])
+                                kg/csv->map
+                                (filter #(not (str/includes? (:ICD_CODE %) "ICD_CODE")))
+                                (map #(assoc % :hasDbXref (:SNOMED_CID %)))
+                                (map #(assoc % :dbXref_source "SNOMED_CT"))
+                                (map #(assoc % :id (:ICD_CODE %)))
+                                (map #(assoc % :id (str/replace (:id %) "." "")))
+                                (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))))
         icd9-mapping (->> (concat icd9-icd10-map icd9-snomed-map)
                           (map #(set/rename-keys % {:id :source_id}))
                           distinct)]
-        (map #(select-keys % [:source_id :hasDbXref :dbXref_source]) icd9-mapping)))
+    (map #(select-keys % [:source_id :hasDbXref :dbXref_source]) icd9-mapping)))
 
 (def output-path "./resources/stage_0_outputs/icd9.csv")
 (def long-file-path "downloads/CMS32_DESC_LONG_DX.txt")
@@ -70,6 +70,6 @@
   [_]
   (let [icd9-info (get-results long-file-path short-file-path)
         icd9-mapping (get-result-mapping icd10-url snomed-file-path)]
-    (->> (kg/joiner icd9-info icd9-mapping :source_id :source_id kg/left-join) 
+    (->> (kg/joiner icd9-info icd9-mapping :source_id :source_id kg/left-join)
          (map #(assoc % :subClassOf ""))
          (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))))

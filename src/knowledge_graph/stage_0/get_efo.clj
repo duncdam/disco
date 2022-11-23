@@ -34,7 +34,8 @@
        (filter #(str/includes? (:id %) "EFO_"))
        (filter #(not (str/includes? (:label %) "obsolete_")))
        (map #(assoc % :subClassOf (last (str/split (:subClassOf %) #"/"))))
-       (map #(assoc % :dbXref_source (kg/correct-source(first (str/split (:hasDbXref %) #":")))))
+       (map #(assoc % :subClassOf (str/replace (:subClassOf %) #"_" ":")))
+       (map #(assoc % :dbXref_source (kg/correct-source (first (str/split (:hasDbXref %) #":")))))
        (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
        (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :synonym :dbXref_source]))
        distinct

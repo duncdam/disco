@@ -11,20 +11,20 @@
   [m]
   (let [{:keys [parent children]} m]
     (map (fn [x] {:parent parent :children x}) children)))
-  
+
 (defn extract-mapping
   [m]
   (->> (map #(set/rename-keys % {:name :parent}) m)
-        (map #(assoc % :children (map (fn[x] (:name x)) (:children %))))
-        (map #(assoc % :data (flatten-column %)))
-        (map #(:data %))
-        (apply concat)
-        (map #(assoc % :id (first (str/split (:children %) #"\s{1,}"))))
-        (map #(assoc % :source_id (:id %)))
-        (map #(assoc % :subClassOf (first (str/split (:parent %) #"\s{1,}"))))
-        (map #(assoc % :is_yes? (re-matches #"\d{1}\w{1}\d{2}" (:subClassOf %))))
-        (map #(assoc % :is_yes_2? (re-matches #"\w{2}\d{2}" (:subClassOf %))))
-        (filter #(or (not (str/blank? (:is_yes? %))) (not (str/blank? (:is_yes_2? %)))))))
+       (map #(assoc % :children (map (fn [x] (:name x)) (:children %))))
+       (map #(assoc % :data (flatten-column %)))
+       (map #(:data %))
+       (apply concat)
+       (map #(assoc % :id (first (str/split (:children %) #"\s{1,}"))))
+       (map #(assoc % :source_id (:id %)))
+       (map #(assoc % :subClassOf (first (str/split (:parent %) #"\s{1,}"))))
+       (map #(assoc % :is_yes? (re-matches #"\d{1}\w{1}\d{2}" (:subClassOf %))))
+       (map #(assoc % :is_yes_2? (re-matches #"\w{2}\d{2}" (:subClassOf %))))
+       (filter #(or (not (str/blank? (:is_yes? %))) (not (str/blank? (:is_yes_2? %)))))))
 
 (defn get-kegg-subClassOf
   [url]
@@ -56,27 +56,27 @@
                              kg/csv->map
                              (map #(assoc % :id (str/replace (:disease_id %) #"ds:" "KEGG_")))
                              (map #(assoc % :hasDbXref (str/replace (:pathway_id %) #"path:hsa" ""))))]
-    (->> (kg/joiner disease-data disease-mapping :id :id kg/left-join )
+    (->> (kg/joiner disease-data disease-mapping :id :id kg/left-join)
          (map #(select-keys % [:id :label :source_id :hasDbXref])))))
 
 (defn get-kegg-pathway-disease
   [url-pathway url-dp-mapping]
   (let [pathway-info-file (->> (client/get url-pathway {:as :read})
-                          :body)
+                               :body)
         pathway-info (->> (csv/read-csv pathway-info-file :separator \tab)
                           (cons ["code" "label"])
                           (kg/csv->map)
-                          (map #(assoc % :id (str/replace (:code %) #"path:hsa" "KEGG_" )))
+                          (map #(assoc % :id (str/replace (:code %) #"path:hsa" "KEGG_")))
                           (map #(assoc % :source_id (str/replace (:code %) #"path:hsa" "")))
                           (map #(assoc % :label (str/replace (:label %) " - Homo sapiens (human)" "")))
                           (map #(select-keys % [:id :label :source_id])))
         dp-mapping-file (->> (client/get url-dp-mapping {:as :read})
-                             :body) 
-        dp-mapping  (->> (csv/read-csv dp-mapping-file :separator \tab) 
+                             :body)
+        dp-mapping  (->> (csv/read-csv dp-mapping-file :separator \tab)
                          (cons ["pathway_id" "disease_id"])
                          kg/csv->map
-                         (map #(assoc % :id (str/replace (:pathway_id %) #"path:hsa" "KEGG_" )))
-                         (map #(assoc % :hasDbXref (str/replace (:disease_id %) #"ds:" "" ))))]
+                         (map #(assoc % :id (str/replace (:pathway_id %) #"path:hsa" "KEGG_")))
+                         (map #(assoc % :hasDbXref (str/replace (:disease_id %) #"ds:" ""))))]
     (->> (kg/joiner pathway-info dp-mapping :id :id kg/inner-join)
          (map #(select-keys % [:id :label :source_id :hasDbXref])))))
 
