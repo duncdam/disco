@@ -65,22 +65,21 @@
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
-  [url]
-  (let [data (->> (client/get url {:as :stream})
-                  :body
-                  (d-xml/parse)
-                  :content
-                  (filter #(= (:tag %) :chapter)))
-        three-diag-children-data (->> (map three-diag-depth-children data)
+  [icd10-xml-file-path]
+  (with-open [file (io/reader (io/resource icd10-xml-file-path))]
+    (let [data (->> (d-xml/parse file)
+                    :content
+                    (filter #(= (:tag %) :chapter)))
+          three-diag-children-data (->> (map three-diag-depth-children data)
+                                        (process-diag-data))
+          two-diag-children-data (->> (map two-diag-depth-children data)
                                       (process-diag-data))
-        two-diag-children-data (->> (map two-diag-depth-children data)
-                                    (process-diag-data))
-        one-diag-depth-children (->> (map one-diag-depth-children data)
-                                     (process-diag-data))
-        icd10-data (->> (concat one-diag-depth-children two-diag-children-data three-diag-children-data)
-                        (map #(assoc % :subClassOf (first (str/split (:id %) #"\."))))
-                        (map #(assoc % :source_id (str/replace (:id %) #"\." ""))))]
-    (mapv #(select-keys % [:id :label :synonym :source_id :subClassOf]) icd10-data)))
+          one-diag-depth-children (->> (map one-diag-depth-children data)
+                                       (process-diag-data))
+          icd10-data (->> (concat one-diag-depth-children two-diag-children-data three-diag-children-data)
+                          (map #(assoc % :subClassOf (first (str/split (:id %) #"\."))))
+                          (map #(assoc % :source_id (str/replace (:id %) #"\." ""))))]
+      (mapv #(select-keys % [:id :label :synonym :source_id :subClassOf]) icd10-data))))
 
 (defn get-icd10-mapping
   [core-file-path icd10-file-path]
@@ -92,11 +91,11 @@
           data-icd10 (->> (csv/read-csv icd10-file :separator \tab)
                           kg/csv->map
                           (map #(select-keys % [:referencedComponentId :referencedComponentName :mapTarget :mapTargetName])))
-          synonym_1 (->> (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Fully_Specified_Name :synonym_1}) data-core))
-          synonym_2 (->> (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Clinician_Friendly_Name :synonym_1}) data-core))
-          synonym_3 (->> (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Patient_Friendly_Name :synonym_1}) data-core))
-          synonym_4 (->> (map #(set/rename-keys % {:referencedComponentId :hasDbXref :mapTarget :source_id :mapTargetName :synonym_1}) data-icd10))
-          synonym_5 (->> (map #(set/rename-keys % {:referencedComponentId :hasDbXref :mapTarget :source_id :referencedComponentName :synonym_1}) data-icd10))]
+          synonym_1 (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Fully_Specified_Name :synonym_1}) data-core)
+          synonym_2 (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Clinician_Friendly_Name :synonym_1}) data-core)
+          synonym_3 (map #(set/rename-keys % {:SCTID :hasDbXref :ICD_10_CM :source_id :Patient_Friendly_Name :synonym_1}) data-core)
+          synonym_4 (map #(set/rename-keys % {:referencedComponentId :hasDbXref :mapTarget :source_id :mapTargetName :synonym_1}) data-icd10)
+          synonym_5 (map #(set/rename-keys % {:referencedComponentId :hasDbXref :mapTarget :source_id :referencedComponentName :synonym_1}) data-icd10)]
       (->> (concat synonym_1 synonym_2 synonym_3 synonym_4 synonym_5)
            (map #(assoc % :dbXref_source "SNOMEDCT"))
            (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) "." "")))
@@ -105,12 +104,12 @@
            (mapv #(select-keys % [:source_id :hasDbXref :dbXref_source :synonym_1]))))))
 
 (def output-path "./resources/stage_0_outputs/icd10.csv")
-(def info-url "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_tabular_2022.xml")
+(def icd10-xml-file-path "downloads/icd10cm_tabular_2022.xml")
 (def snomed->icd10-file "downloads/SNOMED_CT_to_ICD-10-CM_Resources_20220901/tls_Icd10cmHumanReadableMap_US1000124_20220901.tsv")
 (def snomed-core-file "downloads/UMLS_KP_ProblemList_Mapping_20220301_Final.txt")
 
 (defn run [_]
-  (let [icd10-info (get-results info-url)
+  (let [icd10-info (get-results icd10-xml-file-path)
         icd10-mapping (get-icd10-mapping snomed-core-file snomed->icd10-file)
         icd10-combined (kg/joiner icd10-info icd10-mapping :source_id :source_id kg/left-join)
         icd10-synonym (map #(select-keys % [:id :label :source_id :synonym :subClassOf :hasDbXref :dbXref_source]) icd10-combined)
