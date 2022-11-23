@@ -1,6 +1,5 @@
 (ns knowledge-graph.stage-0.get-mesh-scr
   (:require
-   [clj-http.client :as client]
    [clojure.java.io :as io]
    [clojure.data.xml :as d-xml]
    [clojure.data.zip.xml :refer [text xml->]]
