@@ -1,4 +1,6 @@
 #!/bin/zsh
+set -euo pipefail
+
 echo "DOWNLOAD ... "
 
 source ./scripts/download.sh
@@ -22,9 +24,9 @@ CONTAINER_ID="$(docker ps -aqf 'name=^disease-mapping')"
 echo $CONTAINER_ID
 
 echo "LOAD GRAPH"
-docker exec $CONTAINER_ID bin/neo4j-admin import --database=dbdiseasemapping  --delimiter TAB  --high-io=true --skip-duplicate-nodes=true --multiline-fields=true --force \
---nodes='import/nodes.csv' \
---relationships='import/relationships.csv'
+docker exec $CONTAINER_ID bin/neo4j-admin import --database=dbdiseasemapping --delimiter TAB --high-io=true --skip-duplicate-nodes=true --multiline-fields=true --force \
+  --nodes='import/nodes.csv' \
+  --relationships='import/relationships.csv'
 
 echo "RESTARTING CONTAINER WITH NEW GRAPH"
 docker-compose restart
