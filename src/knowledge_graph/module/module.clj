@@ -88,11 +88,11 @@
     (str/includes? dbXref "ICD9") "ICD9CM"
     (or (str/includes? dbXref "ICDO")
         (str/includes? dbXref "ICD-O")) "ICDO-3"
-    (or (str/includes? dbXref "ICD10") 
+    (or (str/includes? dbXref "ICD10")
         (str/includes? dbXref "ICD-10")) "ICD10CM"
-    (or (str/includes? dbXref "ICD11") 
-       (str/includes? dbXref "ICD-11")) "ICD11"
-    (or (str/includes? dbXref "MSH") 
+    (or (str/includes? dbXref "ICD11")
+        (str/includes? dbXref "ICD-11")) "ICD11"
+    (or (str/includes? dbXref "MSH")
         (str/includes? (str/lower-case dbXref) "mesh")) "MESH"
     (str/includes? dbXref "UMLS") "UMLS"
     (str/includes? dbXref "KEGG") "KEGG"
@@ -103,21 +103,19 @@
     (or (str/includes? (str/lower-case dbXref) "meddra")
         (str/includes? dbXref "MDR")) "MEDDRA"
     (nil? dbXref) ""
-    :else dbXref
-  ))
+    :else dbXref))
 
 (defn correct-xref-id
   [dbXref]
-  (let [processed-dbXref (
-    cond
-      (nil? dbXref) ""
-      (or (str/includes? dbXref "DOID") 
-          (str/includes? dbXref "EFO")
-          (str/includes? dbXref "HP")
-          (str/includes? dbXref "MONDO")) dbXref 
-      (str/includes? (str/lower-case dbXref) "orphanet") (str/replace (str/lower-case dbXref) #"orphanet*[_|:]" "ORPHA:")
-      :else (last (str/split dbXref #":")))]
-  (cond 
-    (or (str/includes? processed-dbXref "*") (str/includes? processed-dbXref "+")) (str/replace processed-dbXref #"[\*|\+]" "")
-    (str/includes? processed-dbXref ".")(str/replace processed-dbXref "." "")
-    :else processed-dbXref)))
+  (let [processed-dbXref (cond
+                           (nil? dbXref) ""
+                           (or (str/includes? dbXref "DOID")
+                               (str/includes? dbXref "EFO")
+                               (str/includes? dbXref "HP")
+                               (str/includes? dbXref "MONDO")) dbXref
+                           (str/includes? (str/lower-case dbXref) "orphanet") (str/replace (str/lower-case dbXref) #"orphanet*[_|:]" "ORPHA:")
+                           :else (last (str/split dbXref #":")))]
+    (cond
+      (or (str/includes? processed-dbXref "*") (str/includes? processed-dbXref "+")) (str/replace processed-dbXref #"[\*|\+]" "")
+      (str/includes? processed-dbXref ".") (str/replace processed-dbXref "." "")
+      :else processed-dbXref)))
