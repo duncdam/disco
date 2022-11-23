@@ -9,5 +9,3 @@
   (log/info "finish staging all DISEASE nodes")
   (synonym-nodes/run '_)
   (log/info "finish staging all SYNONYM nodes"))
-
-

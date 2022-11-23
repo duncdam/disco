@@ -8,19 +8,18 @@
 (defn get-synonyms
   ([file-path] (get-synonyms file-path :synonym :label))
   ([file-path key-synonym key-name]
-  (with-open [file (io/reader (io/resource file-path))]
-    (let [data (csv/read-csv file :separator \tab)
-          data-map (kg/csv->map data)
-          synonym (->> (map #(assoc % :name (key-synonym %)) data-map)
-                       (map #(assoc % :label "SYNONYM"))
-                       (mapv #(select-keys % [:label :name]))
-                       distinct)
-          name (->> (map #(assoc % :name (key-name %)) data-map)
-                    (map #(assoc % :label "SYNONYM"))
-                    (mapv #(select-keys % [:label :name]))
-                    distinct)] 
-      (concat synonym name)))))
-
+   (with-open [file (io/reader (io/resource file-path))]
+     (let [data (csv/read-csv file :separator \tab)
+           data-map (kg/csv->map data)
+           synonym (->> (map #(assoc % :name (key-synonym %)) data-map)
+                        (map #(assoc % :label "SYNONYM"))
+                        (mapv #(select-keys % [:label :name]))
+                        distinct)
+           name (->> (map #(assoc % :name (key-name %)) data-map)
+                     (map #(assoc % :label "SYNONYM"))
+                     (mapv #(select-keys % [:label :name]))
+                     distinct)]
+       (concat synonym name)))))
 
 (defn run [_]
   (let [doid (get-synonyms "stage_0_outputs/doid.csv")
@@ -40,7 +39,7 @@
         orphanet (get-synonyms "stage_0_outputs/orphanet.csv")
         snomedct (get-synonyms "stage_0_outputs/snomedct.csv")
         umls (get-synonyms "stage_0_outputs/umls.csv")
-        synonyms (concat doid efo hpo icdo icd9 icd10 medgen desc meddra scr mondo ncit orphanet snomedct umls kegg icd11)] 
+        synonyms (concat doid efo hpo icdo icd9 icd10 medgen desc meddra scr mondo ncit orphanet snomedct umls kegg icd11)]
     (->> (filter #(not= (:name %) "") synonyms)
          (filter #(some? (:name %)))
          (map #(assoc % :fake_id (hash (:name %))))
