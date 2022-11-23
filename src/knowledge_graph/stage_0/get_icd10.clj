@@ -2,7 +2,6 @@
   (:require
    [clojure.java.io :as io]
    [clojure.data.csv :as csv]
-   [clj-http.client :as client]
    [clojure.data.xml :as d-xml]
    [clojure.data.zip :as d-zip]
    [clojure.data.zip.xml :refer [text xml->]]
