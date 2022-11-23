@@ -1,5 +1,5 @@
 [DONE] DOID: https://raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology/doid.owl
-[DONE} Orphadata: https://www.orphadata.com/data/ontologies/ordo/last_version/ORDO_en_4.1.owl
+[DONE} Orphadata: https://www.orphadata.com/data/xml/en_product1.xml
 [DONE] EFO: https://github.com/EBISPOT/efo/releases/download/current/efo.owl
 [DONE] Mondo: https://www.ebi.ac.uk/ols/ontologies/mondo/download
 
@@ -9,11 +9,12 @@
 [DONE] NCIT-MedDRA: https://ncit.nci.nih.gov/ncitbrowser/ajax?action=export_maps_to_mapping&target=MedDRA
 [DONE] NCIT-mapping: https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/Neoplasm/Neoplasm_Core_Mappings_NCIm_Terms.csv
 [DONE] NCIT-core: https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/Neoplasm/Neoplasm_Core.csv
+NCIT: http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl
 
 [DONE] Medgen-mapping: https://ftp.ncbi.nlm.nih.gov/pub/medgen/MedGenIDMappings.txt.gz
 [DONE] MEDGEN: https://ftp.ncbi.nlm.nih.gov/pub/medgen/
 
-[DONE] ICD10: https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_codes_2022.txt
+[DONE] ICD10: https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_tabular_2022.xml
 [DONE] ICD9: https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/ICD-9-CM-v32-master-descriptions.zip
 [DONE] ICD10-9 mapping: https://data.nber.org/gem/icd10cmtoicd9gem.csv or https://data.nber.org/gem/icd9toicd10cmgem.csv
 
@@ -26,11 +27,15 @@
 [DONE] SNOMED-MedDRA: https://download.nlm.nih.gov/umls/kss/mappings/SnomedCT_SNOMEDMedDRAMapPackage_PRODUCTION_20220511T120000Z.zip
 [DONE] SNOMED_MAPSET: https://download.nlm.nih.gov/mlb/utsauth/CMT/2022/UMLS_KP_ProblemList_Mapping_20220301_Final.txt
 
-ICO: https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/ICD-O-3_CSV-metadata.zip
+[DONE] KEGG: https://rest.kegg.jp/list/disease also https://rest.kegg.jp/get/br:br08403/json also https://rest.kegg.jp/link/disease/pathway
+
+ICO: https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/ICD-O-3_CSV-metadata.zip, 
+https://evs.nci.nih.gov/ftp1/Mapped_ICDO/About.html
+https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/Mappings/ICD-O-3_Mappings/ICD-O-3.1-NCIt_Morphology_Mapping.txt
 ICD11 : https://icd.who.int/dev11/Downloads/Download?fileName=LinearizationMiniOutput-MMS-en.zip
 ICD10-ICD11: https://icd.who.int/browse11/Downloads/Download?fileName=mapping.zip
 OMIM: https://www.omim.org/downloads (waiting)
-KEGG: https://rest.kegg.jp/list/disease also https://rest.kegg.jp/get/br:br08403/json also https://rest.kegg.jp/link/disease/pathway
+
 PheCODE: https://phewascatalog.org/files/phecode_definitions1.2.csv.zip also https://phewascatalog.org/files/ICD-CM_to_phecode_unrolled.txt.zip
 
 Notes:
