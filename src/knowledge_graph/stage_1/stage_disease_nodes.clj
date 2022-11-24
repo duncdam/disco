@@ -37,8 +37,9 @@
         snomedct (load-disease "stage_0_outputs/snomedct.csv" "SNOMEDCT")
         umls (load-disease "stage_0_outputs/umls.csv" "UMLS")
         kegg (load-disease "stage_0_outputs/kegg.csv" "KEGG")
+        phecode (load-disease "stage_0_outputs/phecode.csv" "PHECODE")
         disease-nodes (concat doid efo hpo mondo orphanet icdo
-                              icd9 icd10 snomedct umls meddra
+                              icd9 icd10 snomedct umls meddra phecode
                               medgen mesh-des mesh-scr ncit kegg icd11)]
     (->> (distinct disease-nodes)
          (kg/write-csv [:id :label :name :source_id :source] "./resources/stage_1_outputs/disease_nodes.csv"))))

@@ -30,6 +30,7 @@
         icd11 (get-synonyms "stage_0_outputs/icd11.csv")
         icdo (get-synonyms "stage_0_outputs/icdo.csv")
         kegg (get-synonyms "stage_0_outputs/kegg.csv")
+        phecode (get-synonyms "stage_0_outputs/phecode.csv")
         meddra (get-synonyms "stage_0_outputs/meddra.csv")
         medgen (get-synonyms "stage_0_outputs/medgen.csv")
         desc (get-synonyms "stage_0_outputs/mesh_des.csv")
@@ -39,7 +40,7 @@
         orphanet (get-synonyms "stage_0_outputs/orphanet.csv")
         snomedct (get-synonyms "stage_0_outputs/snomedct.csv")
         umls (get-synonyms "stage_0_outputs/umls.csv")
-        synonyms (concat doid efo hpo icdo icd9 icd10 medgen desc meddra scr mondo ncit orphanet snomedct umls kegg icd11)]
+        synonyms (concat doid efo hpo icdo icd9 icd10 medgen desc meddra scr mondo ncit orphanet snomedct umls kegg phecode icd11)]
     (->> (filter #(not= (:name %) "") synonyms)
          (filter #(some? (:name %)))
          (map #(assoc % :fake_id (hash (:name %))))
