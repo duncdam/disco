@@ -48,6 +48,7 @@
 (def orphanet-dbXref (hasDbXref "stage_0_outputs/orphanet.csv" "ORPHANET"))
 (def snomedct-dbXref (hasDbXref "stage_0_outputs/snomedct.csv" "SNOMEDCT"))
 (def umls-dbXref (hasDbXref "stage_0_outputs/umls.csv" "UMLS"))
+(def phecode-dbXref (hasDbXref "stage_0_outputs/phecode.csv" "PHECODE"))
 (def disease (disease-nodes "stage_1_outputs/disease_nodes.csv"))
 
 (defn run [_]
@@ -57,7 +58,8 @@
                                  umls-dbXref icd10-dbXref
                                  icdo-dbXref icd9-dbXref
                                  medgen-dbXref ncit-dbXref
-                                 icd11-dbXref snomedct-dbXref))
+                                 icd11-dbXref snomedct-dbXref
+                                 phecode-dbXref))
         disease-dbXref-end (->> (kg/joiner dbXref
                                            (map #(set/rename-keys % {:id :end_id :source_id :end_mapping_id}) disease)
                                            :end :end_mapping_id

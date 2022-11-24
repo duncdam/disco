@@ -21,7 +21,7 @@
   (with-open [file (io/reader (io/resource file-path))]
     (->> (csv/read-csv file :separator \tab)
          kg/csv->map
-         (mapv #(select-keys % [:source_id :id])))))
+         (mapv #(select-keys % [:source_id :id :source])))))
 
 (defn run
   [_]
@@ -42,17 +42,20 @@
         snomed-subClassOf (get-subClassOf-rel "stage_0_outputs/snomedct.csv")
         umls-subClassOf (get-subClassOf-rel "stage_0_outputs/umls.csv")
         medgen-subClassOf (get-subClassOf-rel "stage_0_outputs/medgen.csv")
+        phecode-subClassOf (get-subClassOf-rel "stage_0_outputs/phecode.csv")
         subClassOf-combined (->> (concat doid-subClassOf efo-subClassOf hpo-subClassOf
                                          mesh-des-subClassOf mesh-scr-subClassOf
                                          icd10-subClassOf icdo-subClassOf
                                          icd11-subClassOf mondo-subClassOf orphanet-subClassOf kegg-subClassOf
                                          icd9-subClassOf meddra-subClassOf ncit-subClassOf snomed-subClassOf
-                                         umls-subClassOf medgen-subClassOf)
+                                         umls-subClassOf medgen-subClassOf phecode-subClassOf)
                                  (filter #(not= (:start %) (:end %))))
         disease-nodes (disease-nodes "stage_1_outputs/disease_nodes.csv")
-        subClassOf-rel (-> (kg/joiner subClassOf-combined (map #(set/rename-keys % {:id :end_id}) disease-nodes) :end :source_id kg/inner-join)
-                           (kg/joiner (map #(set/rename-keys % {:id :start_id}) disease-nodes) :start :source_id kg/inner-join))]
+        subClassOf-rel (-> (kg/joiner subClassOf-combined (map #(set/rename-keys % {:id :end_id :source :end_source}) disease-nodes) :end :source_id kg/inner-join)
+                           (kg/joiner (map #(set/rename-keys % {:id :start_id :source :start_source}) disease-nodes) :start :source_id kg/inner-join))]
     (->> (map #(assoc % :type "subClassOf") subClassOf-rel)
-         (mapv #(select-keys % [:start_id :type :end_id]))
+         (filter #(= (:end_source %) (:start_source %)))
+         (filter #(= (:end_id %) (:start_id %)))
+         (map #(select-keys % [:start_id :type :end_id]))
          distinct
          (kg/write-csv [:start_id :type :end_id] "./resources/stage_2_outputs/subClassOf_rel.csv"))))
