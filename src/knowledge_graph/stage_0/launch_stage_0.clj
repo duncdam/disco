@@ -15,6 +15,7 @@
    [knowledge-graph.stage-0.get-medgen :as medgen]
    [knowledge-graph.stage-0.get-meddra :as meddra]
    [knowledge-graph.stage-0.get-kegg :as kegg]
+   [knowledge-graph.stage-0.get-phecode :as phecode]
    [knowledge-graph.stage-0.get-umls :as umls]
    [taoensso.timbre :as log]))
 
@@ -49,6 +50,8 @@
   (log/info "finished getting MEDDRA")
   (kegg/run '_)
   (log/info "finished getting KEGG")
+  (phecode/run '_)
+  (log/info "finished getting PHECODE")
   (umls/run '_)
   (log/info "finished getting UMLS"))
 
