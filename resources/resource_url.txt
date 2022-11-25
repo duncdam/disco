@@ -17,8 +17,12 @@ NCIT: http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl
 [DONE] ICD10: https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2022/icd10cm_tabular_2022.xml
 [DONE] ICD9: https://www.cms.gov/Medicare/Coding/ICD9ProviderDiagnosticCodes/Downloads/ICD-9-CM-v32-master-descriptions.zip
 [DONE] ICD10-9 mapping: https://data.nber.org/gem/icd10cmtoicd9gem.csv or https://data.nber.org/gem/icd9toicd10cmgem.csv
-
+[DONE] ICO: https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/ICD-O-3_CSV-metadata.zip and 
+            https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/Mappings/ICD-O-3_Mappings/ICD-O-3.1-NCIt_Morphology_Mapping.txt
+[DONE] ICD11 : https://icd.who.int/dev11/Downloads/Download?fileName=LinearizationMiniOutput-MMS-en.zip
+               https://icd.who.int/browse11/Downloads/Download?fileName=mapping.zip
 [DONE] UMLS: https://www.nlm.nih.gov/research/umls/licensedcontent/umlsknowledgesources.html
+
 
 [DONE] SNOMED-ICD10: https://download.nlm.nih.gov/mlb/utsauth/ICD10CM/SNOMED_CT_to_ICD-10-CM_Resources_20220901.zip
 [DONE] SNOMED-CORE: https://download.nlm.nih.gov/umls/kss/SNOMEDCT_CORE_SUBSET/SNOMEDCT_CORE_SUBSET_202205.zip
@@ -29,19 +33,5 @@ NCIT: http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl
 
 [DONE] KEGG: https://rest.kegg.jp/list/disease also https://rest.kegg.jp/get/br:br08403/json also https://rest.kegg.jp/link/disease/pathway
 
-ICO: https://apps.who.int/classifications/apps/icd/ClassificationDownload/DLArea/ICD-O-3_CSV-metadata.zip, 
-https://evs.nci.nih.gov/ftp1/Mapped_ICDO/About.html
-https://evs.nci.nih.gov/ftp1/NCI_Thesaurus/Mappings/ICD-O-3_Mappings/ICD-O-3.1-NCIt_Morphology_Mapping.txt
-ICD11 : https://icd.who.int/dev11/Downloads/Download?fileName=LinearizationMiniOutput-MMS-en.zip
-ICD10-ICD11: https://icd.who.int/browse11/Downloads/Download?fileName=mapping.zip
-OMIM: https://www.omim.org/downloads (waiting)
-
-PheCODE: https://phewascatalog.org/files/phecode_definitions1.2.csv.zip also https://phewascatalog.org/files/ICD-CM_to_phecode_unrolled.txt.zip
-
-Notes:
-Medgen id and umls id are the same. However Medgen id has different mapping to MONDO, HPO and other vs UMLS has mapping to more EHR ontology
-OMIM will be very nice to have
-MedDRA is not free, so will create a nodes based on the mapping available for cross referencing
-ICO-3 will be good to have for oncology
-ICD11 is coming
-KEGG needs to be ingested
+[DONE] PHECODE: https://phewascatalog.org/files/phecode_definitions1.2.csv.zip
+                https://phewascatalog.org/files/ICD-CM_to_phecode_unrolled.txt.zip
