@@ -9,12 +9,14 @@
         camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
         com.taoensso/timbre {:mvn/version "5.2.1"}
         org.apache.logging.log4j/log4j-slf4j-impl {:mvn/version "2.19.0"}
-        dk.ative/docjure {:mvn/version "1.18.0"}}
+        dk.ative/docjure {:mvn/version "1.18.0"}
+        schmee/daguerreo {:mvn/version "0.1.2"}}
  :aliases {:stage-0 {:main-opts ["-m" "knowledge-graph.stage-0.launch-stage-0"]
                      :jvm-opts ["-Xmx10G"]}
            :stage-1 {:main-opts ["-m" "knowledge-graph.stage-1.launch-stage-1"]
                      :jvm-opts ["-Xmx6G"]}
            :stage-2 {:main-opts ["-m" "knowledge-graph.stage-2.launch-stage-2"]
                      :jvm-opts ["-Xmx10G"]}
+           :refersTo {:exec-fn knowledge-graph.stage-2.stage-refersTo-rel/run}
            :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}}}
 
