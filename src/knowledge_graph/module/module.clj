@@ -68,7 +68,8 @@
         map2 group2]
     (merge-with #(or %2 %1) dumy-map map2 map1)))
 
-(defn joiner [left-coll right-coll left-fn right-fn join-type]
+(defn joiner 
+  [left-coll right-coll left-fn right-fn join-type]
   (let [left-idx (group-by left-fn left-coll)
         right-idx (group-by right-fn right-coll)
         join-keys (set (join-type (keys left-idx) (keys right-idx)))]
@@ -76,6 +77,10 @@
            (map #(map-combine (get left-idx  % [{}])
                               (get right-idx % [{}])
                               (zipmap (set (union (keys (first left-coll)) (keys (first right-coll)))) (repeat nil))) join-keys))))
+
+(defn cross-join
+  [left-coll right-coll]
+  (joiner left-coll right-coll (constantly 1) (constantly 1) inner-join))
 
 (defn correct-source
   [dbXref]
