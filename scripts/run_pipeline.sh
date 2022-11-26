@@ -42,6 +42,7 @@ echo "STARTING STAGE 2"
 echo "###################################"
 
 clj -M:stage-2
+clj -X:refersTo
 
 echo "###################################"
 echo "STAGE 2 FINISHED"
