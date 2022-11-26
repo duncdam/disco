@@ -21,11 +21,12 @@
         hasDbXref (read-file "stage_2_outputs/hasDbXref_rel.csv")
         prefLabel (read-file "stage_2_outputs/prefLabel_rel.csv")
         subClassOf (read-file "stage_2_outputs/subClassOf_rel.csv")
+        refersTo (read-file "stage_2_outputs/refersTo_rel.csv")
         nodes (distinct (concat diseases synonyms))
-        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf))]
+        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf refersTo))]
     (log/info "Staging all nodes for neo4j")
     (->> (map #(set/rename-keys % {:id :ID :label :LABEL}) nodes)
          (kg/write-csv [:LABEL :ID :name :source_id :source] "./neo4j/import/nodes.csv"))
     (log/info "Staging all relationships for neo4j")
     (->> (map #(set/rename-keys % {:start_id :START_ID :type :TYPE :end_id :END_ID}) relationships)
-         (kg/write-csv [:START_ID :TYPE :END_ID] "./neo4j/import/relationships.csv"))))
+         (kg/write-csv [:START_ID :TYPE :END_ID :number_commnon_xRef] "./neo4j/import/relationships.csv"))))
