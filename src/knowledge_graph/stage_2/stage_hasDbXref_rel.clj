@@ -19,7 +19,7 @@
                    (= (:end_source %) "ICDO-3") (= (:end_source %) "ICD9CM") (= (:end_source %) "ICD10CM")
                    (= (:end_source %) "ICD11") (= (:end_source %) "KEGG") (= (:end_source %) "MEDGEN")
                    (= (:end_source %) "MONDO") (= (:end_source %) "NCIT") (= (:end_source %) "ORPHANET")
-                   (= (:end_source %) "SNOMEDCT") (= (:end_source %) "UMLS")))
+                   (= (:end_source %) "SNOMEDCT") (= (:end_source %) "UMLS") (= (:end_source %) "MESH")))
          (map #(assoc % :start_source source_label))
          (map #(set/rename-keys % {:hasDbXref :end :source_id :start}))
          (mapv #(select-keys % [:start :start_source :end :end_source]))

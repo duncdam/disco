@@ -4,6 +4,7 @@
    [knowledge-graph.stage-2.stage-prefLabel-rel :as prefLabel]
    [knowledge-graph.stage-2.stage-altLabel-rel :as altLabel]
    [knowledge-graph.stage-2.stage-subClassOf-rel :as subClassOf]
+   [knowledge-graph.stage-2.stage-refersTo-rel :as refersTo]
    [taoensso.timbre :as log]))
 
 (defn -main []
@@ -14,5 +15,6 @@
   (altLabel/run '_)
   (log/info "finished staging altLabel relationship")
   (subClassOf/run '_)
-  (log/info "finish staging subClassOf relationship"))
-  
+  (log/info "finish staging subClassOf relationship")
+  (refersTo/run '_)
+  (log/info "finish staging refersTo relationship"))
