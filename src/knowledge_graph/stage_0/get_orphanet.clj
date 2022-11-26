@@ -11,16 +11,20 @@
   [data]
   (let [z (z/xml-zip data)
         disorders (xml-> z :DisorderList :Disorder)]
-    (for [disorder disorders :let [id (xml-> disorder :OrphaCode)
-                                   label (xml-> disorder :Name)
-                                   dbXref (xml-> disorder :ExternalReferenceList :ExternalReference :Reference)
-                                   dbXref_source (xml-> disorder :ExternalReferenceList :ExternalReference :Source)
-                                   synonym (xml-> disorder :SynonymList :Synonym)]]
+    (for [disorder disorders 
+          :let [id (xml-> disorder :OrphaCode)
+                label (xml-> disorder :Name)
+                dbXref (xml-> disorder :ExternalReferenceList :ExternalReference :Reference)
+                dbXref_source (xml-> disorder :ExternalReferenceList :ExternalReference :Source)
+                dbXref_mapping (xml-> disorder :ExternalReferenceList :ExternalReference :DisorderMappingRelation :Name)
+                synonym (xml-> disorder :SynonymList :Synonym)]]
       {:id (str/join "" (map text id))
        :label (str/join "" (map text label))
-       :hasDbXref (->> (seq (zipmap (map text dbXref_source) (map text dbXref)))
-                       (map #(str/join ":" [(first %) (last %)])))
+       :hasDbXref (->> (interleave (map text dbXref_source) (map text dbXref) (map text dbXref_mapping))
+                       (partition 3)
+                       (map #(str/join "_" [(first %) (second %) (last %)])))
        :synonym (map text synonym)})))
+       
 
 (defn orphanet-subclass-map
   [data]
@@ -68,12 +72,15 @@
          (map #(assoc % :synonym (flatten-synonym %)))
          (map #(:synonym %))
          (apply concat)
-         (map #(assoc % :source_id (str/join ":" ["ORPHA" (:id %)])))
-         (map #(assoc % :id (str/join "_" ["ORPHANET" (:id %)])))
+         (filter #(str/includes? (:hasDbXref %) "Exact mapping"))
+         (map #(assoc % :hasDbXref (str/split (:hasDbXref %) #"_")))
+         (map #(assoc % :hasDbXref (str/join ":" [(first (:hasDbXref %)) (second (:hasDbXref %))])))
          (map #(assoc % :dbXref_source (first (str/split (:hasDbXref %) #":"))))
          (map #(assoc % :dbXref_source (kg/correct-source (:dbXref_source %))))
          (map #(assoc % :hasDbXref (last (str/split (:hasDbXref %) #":"))))
          (map #(assoc % :hasDbXref (kg/correct-xref-id (:hasDbXref %))))
+         (map #(assoc % :source_id (str/join ":" ["ORPHA" (:id %)])))
+         (map #(assoc % :id (str/join "_" ["ORPHANET" (:id %)])))
          (map #(select-keys % [:id :label :source_id :hasDbXref :dbXref_source :synonym]))
          distinct)))
 
@@ -84,6 +91,6 @@
 (defn run [_]
   (let [orphanet-info (get-orphanet file-path-info)
         orphanet-subClassOf (get-orphanet-subClassOf file-path-subClassOf)]
-    (->> (kg/joiner orphanet-info orphanet-subClassOf :id :id kg/left-join)
+    (->> (kg/joiner orphanet-info orphanet-subClassOf :id :id kg/left-join)   
          (map #(select-keys % [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym]))
          (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path))))
