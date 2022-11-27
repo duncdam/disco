@@ -4,7 +4,6 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [clojure.data.csv :as csv]
-   [taoensso.timbre :as log]
    [knowledge-graph.module.module :as kg]))
 
 (defn load-dbXref
@@ -51,5 +50,4 @@
                              (map #(select-keys % [:start_id :type :end_id :number_commnon_xRef])))
         refersTo-rel (->> (concat refersTo-rel-fw refersTo-rel-bw)
                           distinct)]
-    (kg/write-csv [:start_id :type :end_id :number_common_xRef] output-path refersTo-rel)
-    (log/info "finished staging refersTo relationships")))
+    (kg/write-csv [:start_id :type :end_id :number_common_xRef] output-path refersTo-rel)))
