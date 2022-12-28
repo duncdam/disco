@@ -16,3 +16,4 @@ pom.xml.asc
 .DS_Store
 .env
 neo4j/scripts/creds.sh
+neo4j/
