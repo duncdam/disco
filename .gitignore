@@ -15,5 +15,7 @@ pom.xml.asc
 /resources/*/*
 .DS_Store
 .env
-neo4j/scripts/creds.sh
-neo4j/
+neo4j/dbs
+neo4j/import
+neo4j/logs
+neo4j/plugins

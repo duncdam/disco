@@ -18,16 +18,10 @@ services:
     environment:
       # set the neo4j auth
       - NEO4J_AUTH=$NEO4J_USER/$NEO4J_PASS
-      # configure neo4j to allow database imports/exports via APOC
-      - NEO4J_apoc_export_file_enabled=true
-      - NEO4J_apoc_import_file_enabled=true 
-      - NEO4J_apoc_import_file_use__neo4j__config=true
-      # - NEO4JLABS_PLUGINS=["apoc"]
-
+    
     ports:
       # HTTP
       - 7474:7474
       # BOLT
       - 7687:7687
-      # HTTPS
-      #- 7473:7473
+    
