@@ -1,5 +1,4 @@
 #!/bin/zsh
-set -euo pipefail
 
 echo "BUILDING IMAGE"
 docker-compose build
@@ -28,7 +27,7 @@ docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD9CM(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD10CM(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD11(source_id)'
-docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICDO-3(source_id)'
+docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :`ICDO-3`(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :KEGG(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :MEDDRA(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :MEDGEN(source_id)'
@@ -44,7 +43,7 @@ docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD9CM(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD10CM(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICD11(id)'
-docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ICDO-3(id)'
+docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :`ICDO-3`(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :KEGG(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :MEDDRA(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :MEDGEN(id)'

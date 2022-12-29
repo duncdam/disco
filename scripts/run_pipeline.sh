@@ -1,5 +1,4 @@
 #!/bin/zsh
-set -euo pipefail
 
 if [[ ! -d ./resources/stage_0_outputs ]]; then
   mkdir ./resources/stage_0_outputs
@@ -42,7 +41,6 @@ echo "STARTING STAGE 2"
 echo "###################################"
 
 clj -M:stage-2
-clj -X:refersTo
 
 echo "###################################"
 echo "STAGE 2 FINISHED"
