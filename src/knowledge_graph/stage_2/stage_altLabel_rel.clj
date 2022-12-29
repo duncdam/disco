@@ -42,6 +42,7 @@
         mesh_desc_synonym (get-synonyms-from-ontology "stage_0_outputs/mesh_des.csv" "MESH")
         mesh_scr_synonym (get-synonyms-from-ontology "stage_0_outputs/mesh_scr.csv" "MESH")
         medgen_synonym (get-synonyms-from-ontology "stage_0_outputs/medgen.csv" "MEDGEN")
+        meddra_synonym (get-synonyms-from-ontology "stage_0_outputs/meddra.csv" "MEDDRA")
         ncit_synonym (get-synonyms-from-ontology "stage_0_outputs/ncit.csv" "NCIT")
         icdo_synonym (get-synonyms-from-ontology "stage_0_outputs/icdo.csv" "ICDO-3")
         icd9_synonym (get-synonyms-from-ontology "stage_0_outputs/icd9.csv" "ICD9CM")
@@ -53,7 +54,7 @@
         phecode_synonym (get-synonyms-from-ontology "stage_0_outputs/phecode.csv" "PHECODE")
         synonyms (->> (concat doid_synonym efo_synonym hpo_synonym mondo_synonym
                               orphanet_synonym mesh_scr_synonym mesh_desc_synonym
-                              medgen_synonym ncit_synonym snomedct_synonym
+                              medgen_synonym ncit_synonym snomedct_synonym, meddra_synonym
                               icd9_synonym umls_synonym kegg_synonym icdo_synonym
                               icd11_synonym icd10_synonym phecode_synonym)
                       distinct)

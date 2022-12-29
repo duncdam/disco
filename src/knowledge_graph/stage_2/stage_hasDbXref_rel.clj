@@ -43,6 +43,7 @@
 (def icd11-dbXref (hasDbXref "stage_0_outputs/icd11.csv" "ICD11"))
 (def kegg-dbXref (hasDbXref "stage_0_outputs/kegg.csv" "KEGG"))
 (def medgen-dbXref (hasDbXref "stage_0_outputs/medgen.csv" "MEDGEN"))
+(def meddra-dbXref (hasDbXref "stage_0_outputs/meddra.csv" "MEDDRA"))
 (def mondo-dbXref (hasDbXref "stage_0_outputs/mondo.csv" "MONDO"))
 (def ncit-dbXref (hasDbXref "stage_0_outputs/ncit.csv" "NCIT"))
 (def orphanet-dbXref (hasDbXref "stage_0_outputs/orphanet.csv" "ORPHANET"))
@@ -59,7 +60,7 @@
                                  icdo-dbXref icd9-dbXref
                                  medgen-dbXref ncit-dbXref
                                  icd11-dbXref snomedct-dbXref
-                                 phecode-dbXref))
+                                 phecode-dbXref meddra-dbXref))
         disease-dbXref-end (->> (kg/joiner dbXref
                                            (map #(set/rename-keys % {:id :end_id :source_id :end_mapping_id}) disease)
                                            :end :end_mapping_id
