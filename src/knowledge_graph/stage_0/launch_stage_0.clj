@@ -3,6 +3,7 @@
    [knowledge-graph.stage-0.get-icd10 :as icd10]
    [knowledge-graph.stage-0.get-icd9 :as icd9]
    [knowledge-graph.stage-0.get-icd11 :as icd11]
+   [knowledge-graph.stage-0.get-icdo :as icdo]
    [knowledge-graph.stage-0.get-doid :as dx]
    [knowledge-graph.stage-0.get-mondo :as mx]
    [knowledge-graph.stage-0.get-orphanet :as po]
@@ -40,6 +41,8 @@
   (log/info "finished getting ICD9")
   (icd11/run '_)
   (log/info "finished getting ICD11")
+  (icdo/run '_)
+  (log/info "finished getting ICDO-3")
   (snomedct/run '_)
   (log/info "finished getting SNOMEDCT")
   (ncit/run '_)

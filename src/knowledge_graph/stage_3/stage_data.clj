@@ -26,7 +26,7 @@
         relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf refersTo))]
     (log/info "Staging all nodes for neo4j")
     (->> (map #(set/rename-keys % {:id :ID :label :LABEL}) nodes)
-         (kg/write-csv [:LABEL :ID :name :source_id :source] "./neo4j/import/nodes.csv"))
+         (kg/write-csv [:LABEL :ID :name :source_id :source] "./resources/stage_3_outputs/nodes.csv"))
     (log/info "Staging all relationships for neo4j")
     (->> (map #(set/rename-keys % {:start_id :START_ID :type :TYPE :end_id :END_ID}) relationships)
-         (kg/write-csv [:START_ID :TYPE :END_ID :number_commnon_xRef] "./neo4j/import/relationships.csv"))))
+         (kg/write-csv [:START_ID :TYPE :END_ID :number_commnon_xRef] "./resources/stage_3_outputs/relationships.csv"))))
