@@ -19,3 +19,4 @@ neo4j/dbs
 neo4j/import
 neo4j/logs
 neo4j/plugins
+.clj-kondo/
