@@ -1,11 +1,14 @@
 #!/bin/zsh
-set -euo pipefail
 
 while getopts "s:" opt; do
   case "$opt" in
   s) SOURCE=$OPTARG ;;
   esac
 done
+
+if [[ -z $SOURCE ]]; then
+  SOURCE="all"
+fi
 
 echo "DOWNLOAD ... "
 

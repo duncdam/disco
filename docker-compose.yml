@@ -3,7 +3,7 @@ services:
   neo4j:
     build:
       context: .
-      dockerfile: ./neo4j/Dockerfile
+      dockerfile: Dockerfile
     volumes:
       # database directory
       - ./neo4j/dbs:/data

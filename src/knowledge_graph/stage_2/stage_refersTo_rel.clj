@@ -30,7 +30,7 @@
 (def groupBy (concat (create-reference-pair hasDbXref :end_id :start_id)
                      (create-reference-pair hasDbXref :start_id :end_id)))
 (def data-map  (->> (map #(into {} {:start_id (first (first %)) :end_id (second (first %)) :hasDbXref (second %)}) groupBy)
-                    (map #(assoc % :hasDbXref (map (fn [x] into () (:end_id x)) (:hasDbXref %))))
+                    (map #(assoc % :hasDbXref (map (fn [x] (into () (:end_id x))) (:hasDbXref %))))
                     (filter #(not (str/blank? (:start_id %))))
                     (filter #(not (str/blank? (:end_id %))))))
 
@@ -53,7 +53,7 @@
         refersTo-rel  (->> (concat (map #(assoc % :number_common_xRef 0) hasDbXref) refersTo-fw)
                            (group-by (juxt :start_id :end_id))
                            (map #(into {} {:start_id (first (first %)) :end_id (second (first %)) :type (second %)}))
-                           (map #(assoc % :type (map (fn [x] into () (:type x)) (:type %))))
+                           (map #(assoc % :type (map (fn [x] (into () (:type x))) (:type %))))
                            (map #(assoc % :type (distinct (:type %))))
                            (map #(assoc % :count (count (:type %))))
                            ;; remove relationships already linked by hasDbXref
