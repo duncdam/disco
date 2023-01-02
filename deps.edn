@@ -19,5 +19,5 @@
                      :jvm-opts ["-Xmx10G"]}
            :refersTo {:exec-fn knowledge-graph.stage-2.stage-refersTo-rel/run
                       :jvm-opts ["-Xmx10G"]}
-           :stage-3 {:exec-fn knowledge-graph.stage-3.stage-data/run}}}
+           :stage-4 {:exec-fn knowledge-graph.stage-4.stage-data/run}}}
 

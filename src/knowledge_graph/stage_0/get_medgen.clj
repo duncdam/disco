@@ -57,6 +57,7 @@
                               (mapv #(select-keys % [:id :hasDbXref :dbXref_source])))
           medgen-umls (->>  (map #(assoc % :dbXref_source "UMLS") data-map)
                             (map #(assoc % :hasDbXref (:#CUI %)))
+                            (map #(set/rename-keys % {:#CUI :id}))
                             (mapv #(select-keys % [:id :hasDbXref :dbXref_source]))
                             distinct)
           mapping (->> (concat medgen-mapping  medgen-umls)
@@ -98,4 +99,5 @@
                     (map #(assoc % :subClassOf ""))
                     (map #(assoc % :source_id (:id %)))
                     distinct)]
+
     (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path medgen)))
