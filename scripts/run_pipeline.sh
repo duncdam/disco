@@ -16,6 +16,10 @@ if [[ ! -d ./resources/stage_3_outputs ]]; then
   mkdir ./resources/stage_3_outputs
 fi
 
+if [[ ! -d ./resources/stage_4_outputs ]]; then
+  mkdir ./resources/stage_4_outputs
+fi
+
 if [[ ! -d ./neo4j/import ]]; then
   mkdir ./neo4j/import
 fi
@@ -49,7 +53,6 @@ echo "STARTING STAGE 2"
 echo "###################################"
 
 clj -M:stage-2
-clj -X:refersTo
 
 echo "###################################"
 echo "STAGE 2 FINISHED"
@@ -69,4 +72,4 @@ echo "###################################"
 echo "Copy nodes and relationships to ./neo4j/import folder"
 echo "###################################"
 
-cp ./resources/stage_3_outputs/* ./neo4j/import
+cp ./resources/stage_4_outputs/* ./neo4j/import

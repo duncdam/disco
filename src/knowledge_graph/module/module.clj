@@ -68,7 +68,7 @@
         map2 group2]
     (merge-with #(or %2 %1) dumy-map map2 map1)))
 
-(defn joiner 
+(defn joiner
   [left-coll right-coll left-fn right-fn join-type]
   (let [left-idx (group-by left-fn left-coll)
         right-idx (group-by right-fn right-coll)
