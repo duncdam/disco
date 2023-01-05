@@ -53,6 +53,7 @@ echo "STARTING STAGE 2"
 echo "###################################"
 
 clj -M:stage-2
+clj -X:relatedTo
 
 echo "###################################"
 echo "STAGE 2 FINISHED"
@@ -68,6 +69,7 @@ echo "###################################"
 echo "STAGE 3 FINISHED"
 echo "###################################"
 
+echo "\n"
 
 echo "###################################"
 echo "STARTING STAGE 4"
@@ -78,6 +80,8 @@ clj -X:stage-4
 echo "###################################"
 echo "STAGE 4 FINISHED"
 echo "###################################"
+
+echo "\n"
 
 echo "###################################"
 echo "Copy nodes and relationships to ./neo4j/import folder"
