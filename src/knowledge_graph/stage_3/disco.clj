@@ -6,7 +6,9 @@
    [clojure.math :as m]
    [clojure.data.csv :as csv]
    [taoensso.timbre :as log]
-   [knowledge-graph.module.module :as kg]))
+   [knowledge-graph.module.module :as kg])
+  (:import (java.lang Integer)
+           (java.lang Float)))
 
 (defn load-csv-file
   [file-path keys]
@@ -21,8 +23,10 @@
     "your" "yours" "yourself" "yourselves" "he" "him" "his"
     "himself" "she" "her" "hers" "herself" "it" "its" "itself"
     "they" "them" "their" "theirs" "themselves" "what" "which"
-    "who" "this" "that" "these" "those" "am" "is" "are" "was"
-    "were" "be" "been" "being" "have" "has" "had" "having"})
+    "who" "this" "that" "these" "those" "the" "a" "an"
+    "am" "is" "are" "was" "were" "be" "been" "being"
+    "have" "has" "had" "having"
+    "(finding)" "(disorder)" "(procedure)" "(situation)"})
 
 (defn split-string
   "function to split strings into collection"
@@ -57,7 +61,7 @@
 
 (defn create-disco-codes
   "Create DISCO terms for duplicated terms from different disease ontology"
-  [file-path-dbXref file-path-refersTo file-path-prefLabel file-path-synonyms file-path-diseases]
+  [file-path-dbXref file-path-refersTo file-path-prefLabel file-path-synonyms file-path-diseases file-path-disco-cached]
   (let [dbXref (load-csv-file file-path-dbXref [:start_id :end_id])
         refersTo (load-csv-file file-path-refersTo [:start_id :end_id])
         prefLabel (->> (load-csv-file file-path-prefLabel [:start_id :end_id])
@@ -66,6 +70,9 @@
                                        :end_id (first (sort (map (fn [x] (:end_id x)) (second %))))})))
         synonyms (load-csv-file file-path-synonyms [:id :name])
         diseases (load-csv-file file-path-diseases [:id])
+        cached-disco (if (.exists (io/file "./resources/stage_3_outputs/cached_disco.csv"))
+                       (load-csv-file file-path-disco-cached [:id :hash_string])
+                       (list (hash-map)))
         rel (concat dbXref refersTo)
         rel-prefLabel (-> (kg/joiner rel
                                      (map #(set/rename-keys % {:end_id :start_prefLabel_id}) prefLabel)
@@ -88,6 +95,8 @@
                          (group-by (juxt :start_id))
                          (map #(into {} {:name (str/lower-case (first (sort (distinct (map (fn [x] (:start_name x)) (second %))))))
                                          :all (sort (distinct (conj (map (fn [x] (:end_id x)) (second %)) (first (first %)))))}))
+                         (map #(assoc % :name (remove #{"(finding)" "(disorder)" "(procedure)" "(situation)"} (str/split (:name %) #" "))))
+                         (map #(assoc % :name (str/join " " (:name %))))
                          distinct
                          (group-by :name)
                          (map #(into {} {:name (first %)
@@ -115,22 +124,33 @@
                                 (map #(assoc % :name (str/lower-case (:name %))))
                                 (map #(select-keys % [:name :dbXref]))
                                 distinct)
-        disco (concat xref-disco nonxref-disco-name)]
-    (->>
-     disco
-     (map #(assoc % :xref_string (map (fn [x] (str/split x #"_")) (:dbXref %))))
-     (map #(assoc % :xref_string (map (fn [x] (second x)) (:xref_string %))))
-     (map #(assoc % :xref_string (distinct (:xref_string %))))
-     (map #(assoc % :xref_string (str/join "" (apply concat (:xref_string %)))))
-     (map #(assoc % :name_string (str/split (:name %) #" ")))
-     (map #(assoc % :name_string (map (fn [x] (str/split x #"")) (:name_string %))))
-     (map #(assoc % :name_string (str/join "" (apply concat (:name_string %)))))
-     (map #(assoc % :hash_string (str/join "" [(:xref_string %) (:name_string %)])))
-     (map #(select-keys % [:name :dbXref :hash_string]))
-     distinct
-     (sort-by :hash_string)
-     (map-indexed vector)
-     (map #(into (second %) {:id (str/join "_" ["DISCO" (format "%07d" (first %))])})))))
+        processed-disco (->> (concat xref-disco nonxref-disco-name)
+                             (map #(assoc % :xref_string (map (fn [x] (str/split x #"_")) (:dbXref %))))
+                             (map #(assoc % :xref_string (map (fn [x] (second x)) (:xref_string %))))
+                             (map #(assoc % :xref_string (distinct (:xref_string %))))
+                             (map #(assoc % :xref_string (str/join "" (apply concat (:xref_string %)))))
+                             (map #(assoc % :name_string (str/split (:name %) #" ")))
+                             (map #(assoc % :name_string (map (fn [x] (str/split x #"")) (:name_string %))))
+                             (map #(assoc % :name_string (str/join "" (apply concat (:name_string %)))))
+                             (map #(assoc % :hash_string (str/join "" [(:xref_string %) (:name_string %)])))
+                             (map #(select-keys % [:name :dbXref :hash_string]))
+                             distinct)
+        evaluate?-disco (kg/joiner processed-disco cached-disco :hash_string :hash_string kg/left-join)
+        old-disco (filter #(not (str/blank? (:id %))) evaluate?-disco)
+        last-id (if (> (count old-disco) 0)
+                  (-> (map #(:id %) old-disco)
+                      sort
+                      last
+                      (str/split #"_")
+                      last
+                      Integer/parseInt)
+                  0)
+        new-disco (->> (filter #(str/blank? (:id %)) evaluate?-disco)
+                       (sort-by :hash_string)
+                       (map-indexed vector)
+                       (map #(into (second %) {:id (str/join "_" ["DISCO" (format "%07d" (+ (first %) last-id))])})))
+        disco (concat old-disco new-disco)]
+    disco))
 
 (defn disco-refersTo
   [disco]
@@ -144,15 +164,26 @@
 (def file-path-synonyms "./stage_1_outputs/synonym_nodes.csv")
 (def file-path-diseases "./stage_1_outputs/disease_nodes.csv")
 (def file-path-disco-cached "./stage_3_outputs/cached_disco.csv")
-(def disco (create-disco-codes file-path-dbXref file-path-refersTo file-path-prefLabel file-path-synonyms file-path-diseases))
+(def disco (create-disco-codes
+            file-path-dbXref file-path-refersTo
+            file-path-prefLabel file-path-synonyms
+            file-path-diseases file-path-disco-cached))
 
 (defn run
   [_]
-  (let [cached-disco (map #(select-keys % [:id :hash_string]) disco)
+  (let [cached-disco (distinct (map #(select-keys % [:id :hash_string]) disco))
         final-disco (->> (map #(select-keys % [:id :name]) disco)
-                         (map #(assoc % :label "DISCO")))
+                         (map #(assoc % :label "DISCO"))
+                         distinct)
         refersTo-disco (->> (map #(disco-refersTo  %) disco)
-                            (apply concat))]
+                            (apply concat)
+                            distinct)]
+    (log/info "Saving hashstring and previous DISCO ids")
     (kg/write-csv [:id :hash_string] "./resources/stage_3_outputs/cached_disco.csv" cached-disco)
+    (log/info "Saving new version of DISCO")
     (kg/write-csv [:label :id :name] "./resources/stage_3_outputs/disco.csv" final-disco)
+    (log/info "Saving refersTo relationship of DISCO terms")
     (kg/write-csv [:start_id :type :end_id] "./resources/stage_3_outputs/disco_refersTo_rel.csv" refersTo-disco)))
+  ; (->> disco
+  ;      (take 5)
+  ;      println))
