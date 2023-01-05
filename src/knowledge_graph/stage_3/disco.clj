@@ -183,7 +183,4 @@
     (log/info "Saving new version of DISCO")
     (kg/write-csv [:label :id :name] "./resources/stage_3_outputs/disco.csv" final-disco)
     (log/info "Saving refersTo relationship of DISCO terms")
-    (kg/write-csv [:start_id :type :end_id] "./resources/stage_3_outputs/disco_refersTo_rel.csv" refersTo-disco)))
-  ; (->> disco
-  ;      (take 5)
-  ;      println))
+    (kg/write-csv [:start_id :type :end_id] "./resources/stage_3_outputs/refersTo_rel.csv" refersTo-disco)))
