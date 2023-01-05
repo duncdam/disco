@@ -17,13 +17,15 @@
   [_]
   (let [diseases (read-file "stage_1_outputs/disease_nodes.csv")
         synonyms (read-file "stage_1_outputs/synonym_nodes.csv")
+        disco (read-file "stage_3_outputs/disco.csv")
         altLabel (read-file "stage_2_outputs/altLabel_rel.csv")
         hasDbXref (read-file "stage_2_outputs/hasDbXref_rel.csv")
         prefLabel (read-file "stage_2_outputs/prefLabel_rel.csv")
         subClassOf (read-file "stage_2_outputs/subClassOf_rel.csv")
         relatedTo (read-file "stage_2_outputs/relatedTo_rel.csv")
-        nodes (distinct (concat diseases synonyms))
-        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf relatedTo))]
+        refersTo (read-file "stage_3_outputs/refersTo_rel.csv")
+        nodes (distinct (concat diseases synonyms disco))
+        relationships (distinct (concat altLabel hasDbXref prefLabel subClassOf relatedTo refersTo))]
     (log/info "Staging all nodes for neo4j")
     (->> (map #(set/rename-keys % {:id :ID :label :LABEL}) nodes)
          (kg/write-csv [:LABEL :ID :name :source_id :source] "./resources/stage_4_outputs/nodes.csv"))
