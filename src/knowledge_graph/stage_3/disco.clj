@@ -60,9 +60,9 @@
 
 (defn create-disco-codes
   "Create DISCO terms for duplicated terms from different disease ontology"
-  [file-path-dbXref file-path-refersTo file-path-prefLabel file-path-synonyms file-path-diseases file-path-disco-cached]
+  [file-path-dbXref file-path-relatedTo file-path-prefLabel file-path-synonyms file-path-diseases file-path-disco-cached]
   (let [dbXref (load-csv-file file-path-dbXref [:start_id :end_id])
-        refersTo (load-csv-file file-path-refersTo [:start_id :end_id])
+        relatedTo (load-csv-file file-path-relatedTo [:start_id :end_id])
         prefLabel (->> (load-csv-file file-path-prefLabel [:start_id :end_id])
                        (group-by :start_id)
                        (map #(into {} {:start_id (first %)
@@ -72,7 +72,7 @@
         cached-disco (if (.exists (io/file "./resources/stage_3_outputs/cached_disco.csv"))
                        (load-csv-file file-path-disco-cached [:id :hash_string])
                        (list (hash-map)))
-        rel (concat dbXref refersTo)
+        rel (concat dbXref relatedTo)
         rel-prefLabel (-> (kg/joiner rel
                                      (map #(set/rename-keys % {:end_id :start_prefLabel_id}) prefLabel)
                                      :start_id :start_id
@@ -156,20 +156,20 @@
         disco (concat old-disco new-disco)]
     disco))
 
-(defn disco-refersTo
+(defn disco-relatedTo
   [disco]
   (let [{:keys [id dbXref]} disco]
     (->> (map (fn [x] {:start_id id :end_id x}) dbXref)
-         (map #(assoc % :type "refersTo")))))
+         (map #(assoc % :type "relatedTo")))))
 
 (def file-path-dbXref "./stage_2_outputs/hasDbXref_rel.csv")
-(def file-path-refersTo "./stage_2_outputs/relatedTo_rel.csv")
+(def file-path-relatedTo "./stage_2_outputs/relatedTo_rel.csv")
 (def file-path-prefLabel "./stage_2_outputs/prefLabel_rel.csv")
 (def file-path-synonyms "./stage_1_outputs/synonym_nodes.csv")
 (def file-path-diseases "./stage_1_outputs/disease_nodes.csv")
 (def file-path-disco-cached "./stage_3_outputs/cached_disco.csv")
 (def disco (create-disco-codes
-            file-path-dbXref file-path-refersTo
+            file-path-dbXref file-path-relatedTo
             file-path-prefLabel file-path-synonyms
             file-path-diseases file-path-disco-cached))
 
@@ -181,12 +181,12 @@
                          (map #(assoc % :source_id (:id %)))
                          (map #(assoc % :source "DISCO"))
                          distinct)
-        refersTo-disco (->> (map #(disco-refersTo  %) disco)
-                            (apply concat)
-                            distinct)]
+        relatedTo-disco (->> (map #(disco-relatedTo  %) disco)
+                             (apply concat)
+                             distinct)]
     (log/info "Saving hashstring and previous DISCO ids")
     (kg/write-csv [:id :hash_string] "./resources/stage_3_outputs/cached_disco.csv" cached-disco)
     (log/info "Saving new version of DISCO")
     (kg/write-csv [:label :id :name :source_id :source] "./resources/stage_3_outputs/disco.csv" final-disco)
-    (log/info "Saving refersTo relationship of DISCO terms")
-    (kg/write-csv [:start_id :type :end_id] "./resources/stage_3_outputs/refersTo_rel.csv" refersTo-disco)))
+    (log/info "Saving relatedTo relationship of DISCO terms")
+    (kg/write-csv [:start_id :type :end_id] "./resources/stage_3_outputs/relatedTo_rel.csv" relatedTo-disco)))
