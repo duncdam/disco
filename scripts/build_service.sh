@@ -7,7 +7,7 @@ echo "SPINNING UP CONTAINER"
 docker-compose up -d
 
 echo "GET DOCKER ID"
-CONTAINER_ID="$(docker ps -aqf 'name=^disease-mapping')"
+CONTAINER_ID="$(docker ps -aqf 'name=^disco')"
 echo $CONTAINER_ID
 
 echo "LOAD GRAPH"
@@ -37,6 +37,7 @@ docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ORPHANET(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :SNOMEDCT(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :UMLS(source_id)'
+docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :DISCO(source_id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :DOID(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :EFO(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :HPO(id)'
@@ -53,4 +54,5 @@ docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :ORPHANET(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :SNOMEDCT(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :UMLS(id)'
+docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :DISCO(id)'
 docker exec $CONTAINER_ID bin/cypher-shell -u $NEO4J_USER -p $NEO4J_PASS 'create index on :SYNONYM(name)'
