@@ -55,9 +55,8 @@
         all-tokens (distinct (concat token-a token-b))
         vector-a (map #(get (frequencies token-a) % 0) all-tokens)
         vector-b (map #(get (frequencies token-b) % 0) all-tokens)]
-    (try (Float/parseFloat (format "%.2f" (/ (dot-product vector-a vector-b)
-                                             (* (calculate-magnitute vector-a) (calculate-magnitute vector-b)))))
-         (catch Exception e (println string-a (calculate-magnitute vector-a) string-b (calculate-magnitute vector-b))))))
+    (Float/parseFloat (format "%.2f" (/ (dot-product vector-a vector-b)
+                                        (* (calculate-magnitute vector-a) (calculate-magnitute vector-b)))))))
 
 (defn create-disco-codes
   "Create DISCO terms for duplicated terms from different disease ontology"
