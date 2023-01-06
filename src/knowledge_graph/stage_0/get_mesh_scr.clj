@@ -43,7 +43,7 @@
            (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
 
 (defn run [_]
-  (let [scr-file "downloads/supp2022.xml"
+  (let [scr-file "downloads/supp2023.xml"
         output-path "./resources/stage_0_outputs/mesh_scr.csv"
         mesh-desc-path "stage_0_outputs/mesh_des.csv"]
     (get-results scr-file mesh-desc-path output-path)))

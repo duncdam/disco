@@ -64,7 +64,7 @@
 (def long-file-path "downloads/CMS32_DESC_LONG_DX.txt")
 (def short-file-path "downloads/CMS32_DESC_SHORT_DX.txt")
 (def icd10-url "https://data.nber.org/gem/icd9toicd10cmgem.csv")
-(def snomed-file-path "downloads/ICD9CM_SNOMED_MAP_1TO1_202112.txt")
+(def snomed-file-path "downloads/ICD9CM_SNOMED_MAP_1TO1_202212.txt")
 
 (defn run
   [_]

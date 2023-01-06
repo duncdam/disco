@@ -64,7 +64,7 @@
            (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path)))))
 
 (defn run [_]
-  (let [concept-file-path "downloads/2022AA/META/MRCONSO.RRF"
-        semantic-file-path "downloads/2022AA/META/MRSTY.RRF"
+  (let [concept-file-path "downloads/2022AB/META/MRCONSO.RRF"
+        semantic-file-path "downloads/2022AB/META/MRSTY.RRF"
         output-path "./resources/stage_0_outputs/umls.csv"]
     (get-results concept-file-path semantic-file-path output-path)))

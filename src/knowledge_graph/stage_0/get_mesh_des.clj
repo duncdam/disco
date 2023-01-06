@@ -44,7 +44,7 @@
            (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output_path)))))
 
 (defn run [_]
-  (let [file-path "downloads/desc2022.xml"
+  (let [file-path "downloads/desc2023.xml"
         output "./resources/stage_0_outputs/mesh_des.csv"]
     (get-results file-path output)))
 

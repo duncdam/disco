@@ -63,7 +63,7 @@
 
 (def meddra-ncit-url "https://ncit.nci.nih.gov/ncitbrowser/ajax?action=export_maps_to_mapping&target=MedDRA")
 (def meddra-snomed-path "downloads/SnomedCT_SNOMEDMedDRAMapPackage_PRODUCTION_20220511T120000Z/Full/Refset/Map/der2_sRefset_SNOMEDtoMedDRASimpleMapFull_INT_20220131.txt")
-(def snomed-core-path "downloads/SNOMEDCT_CORE_SUBSET_202205.txt")
+(def snomed-core-path "downloads/SNOMEDCT_CORE_SUBSET_202211.txt")
 (def output-path "./resources/stage_0_outputs/meddra.csv")
 
 (defn run
