@@ -31,7 +31,7 @@
                            (filter #(= (:SNOMED_CONCEPT_STATUS %) "Current"))
                            (mapv #(set/rename-keys % {:SNOMED_CID :snomed_id :SNOMED_FSN :label}))))
         meddra (->> (kg/joiner meddra-snomed snomed-core :snomed_id :snomed_id kg/inner-join)
-                    (map #(assoc % :dbXref_source "SNOMED"))
+                    (map #(assoc % :dbXref_source "SNOMEDCT"))
                     (map #(assoc % :id (:meddra_id %)))
                     (map #(assoc % :hasDbXref (:snomed_id %)))
                     (map #(assoc % :source_id  (:meddra_id %)))
