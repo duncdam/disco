@@ -63,7 +63,7 @@ echo "###################################"
 echo "STARTING STAGE 3"
 echo "###################################"
 
-clj -X:disco
+clj -X:stage-3
 
 echo "###################################"
 echo "STAGE 3 FINISHED"
@@ -75,7 +75,7 @@ echo "###################################"
 echo "STARTING STAGE 4"
 echo "###################################"
 
-clj -X:stage-4
+clj -X:disco
 
 echo "###################################"
 echo "STAGE 4 FINISHED"
@@ -84,7 +84,12 @@ echo "###################################"
 echo "\n"
 
 echo "###################################"
-echo "Copy nodes and relationships to ./neo4j/import folder"
+echo "TRANSFER NODES AND RELATIONSHIPS"
 echo "###################################"
 
-cp ./resources/stage_4_outputs/* ./neo4j/import
+echo "transfer nodes and relations to import"
+cp ./resources/stage_3_outputs/* ./neo4j/import
+echo "transfer disco to import"
+cp ./resources/stage_4_outputs/disco.csv ./neo4j/import
+echo "transfer refersTo to import"
+cp ./resources/stage_4_outputs/refersTo_rel.csv ./neo4j/import

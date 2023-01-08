@@ -11,9 +11,11 @@ CONTAINER_ID="$(docker ps -aqf 'name=^disco')"
 echo $CONTAINER_ID
 
 echo "LOAD GRAPH"
-docker exec $CONTAINER_ID bin/neo4j-admin import --database=dbdisco --delimiter TAB --high-io=true --skip-duplicate-nodes=true --multiline-fields=true --force \
+docker exec $CONTAINER_ID bin/neo4j-admin import --database=dbdisco --delimiter TAB --array-delimiter=";" --high-io=true --skip-duplicate-nodes=true --multiline-fields=true --force \
   --nodes='import/nodes.csv' \
-  --relationships='import/relationships.csv'
+  --nodes='import/disco.csv' \
+  --relationships='import/relationships.csv' \
+  --relationships='import/refersTo_rel.csv'
 
 echo "RESTARTING CONTAINER WITH NEW GRAPH"
 docker-compose restart
