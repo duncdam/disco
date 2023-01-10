@@ -28,6 +28,7 @@
        (rest)
        (filter #(not (str/blank? (:source_id %))))
        (map #(assoc % :dbXref_source "ICD10CM"))
+       (map #(assoc % :hasDbXref (str/replace (:hasDbXref %) #"\." "")))
        (map #(select-keys % [:source_id :hasDbXref :dbXref_source]))))
 
 (def file-path-info "./downloads/LinearizationMiniOutput-MMS-en.xlsx")
