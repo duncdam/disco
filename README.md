@@ -63,7 +63,7 @@ The following instruction helps users to spin up DISCO graph database locally
   ```sh
     touch Dockerfile
   ```
-- Copy the following content into Dockerfile
+- Copy the following content into `Dockerfile`
   ```dockerfile
     FROM duncanhmdam/disco:latest
   ```
