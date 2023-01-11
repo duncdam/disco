@@ -3,6 +3,8 @@
 
 DISCO (or DISease COnsolidation) aims to aggregate different disease ontologies, generate cross-references among them, and create a common disease terminology that can reference to all others. DISCO terminology provides a quick way to harmonize and connect data from different aspects of healthcare and life science research. Real-world evidence (RWE), electronic health record (EHR) can now connect with biomedical and clinical research data via a common disease terminology. DISCO is currently published as a docker image and can be consumed by other applications. 
 
+<b><u>FIND DOCKER IMAGE HERE: https://hub.docker.com/repository/docker/duncanhmdam/disco/</u></b>
+
 ## A. SOURCES
 
 DISCO contains terms from the following medical terminologies:
