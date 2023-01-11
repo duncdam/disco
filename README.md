@@ -88,7 +88,7 @@ The following instruction helps users to spin up DISCO graph database locally
           # BOLT
           - 7687:7687
   ```
-- Export credentials-[]
+- Export credentials
   ```sh
     export NEO4J_USER=neo4j
     export NEO4J_PASS=test
