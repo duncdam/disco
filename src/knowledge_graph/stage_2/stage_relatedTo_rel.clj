@@ -4,7 +4,6 @@
    [clojure.set :as set]
    [clojure.string :as str]
    [clojure.data.csv :as csv]
-   [taoensso.timbre :as log]
    [knowledge-graph.module.module :as kg]))
 
 (defn load-dbXref
