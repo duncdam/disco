@@ -64,14 +64,14 @@
         disease-dbXref-end (->> (kg/joiner dbXref
                                            (map #(set/rename-keys % {:id :end_id :source_id :end_mapping_id}) disease)
                                            :end :end_mapping_id
-                                           kg/left-join)
+                                           kg/inner-join)
                                 (filter #(not (nil? (:end_mapping_id %))))
                                 (filter #(= (:end_source %) (:source %)))
                                 (map #(select-keys % [:end_id :start :start_source])))
         disease-dbXref (->> (kg/joiner disease-dbXref-end
                                        (map #(set/rename-keys % {:id :start_id :source_id :start_mapping_id}) disease)
                                        :start :start_mapping_id
-                                       kg/left-join)
+                                       kg/inner-join)
                             (filter #(not (nil? (:start_mapping_id %))))
                             (filter #(= (:start_source %) (:source %)))
                             (map #(select-keys % [:start_id :end_id])))

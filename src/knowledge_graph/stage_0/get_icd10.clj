@@ -58,9 +58,7 @@
        (map #(assoc % :synonym (str/split (:synonym %), #"\|")))
        (map #(assoc % :data (flatten-column %)))
        (map #(:data %))
-       (apply concat)
-      ;;  (filter #(not (str/blank? (:synonym %))))
-       ))
+       (apply concat)))
 
 (defn get-results
   "Stream xml file, parse for necessary information, and write as csv output"
@@ -73,11 +71,11 @@
                                         (process-diag-data))
           two-diag-children-data (->> (map two-diag-depth-children data)
                                       (process-diag-data))
-          one-diag-depth-children (->> (map one-diag-depth-children data)
-                                       (process-diag-data))
-          icd10-data (->> (concat one-diag-depth-children two-diag-children-data three-diag-children-data)
-                          (map #(assoc % :subClassOf (first (str/split (:id %) #"\."))))
-                          (map #(assoc % :source_id (str/replace (:id %) #"\." ""))))]
+          one-diag-children-data (->> (map one-diag-depth-children data)
+                                      (process-diag-data))
+          icd10-data (->> (concat one-diag-children-data two-diag-children-data three-diag-children-data)
+                          (mapv #(assoc % :subClassOf (first (str/split (:id %) #"\."))))
+                          (mapv #(assoc % :source_id (str/replace (:id %) #"\." ""))))]
       (mapv #(select-keys % [:id :label :synonym :source_id :subClassOf]) icd10-data))))
 
 (defn get-icd10-mapping
@@ -115,7 +113,7 @@
         icd10-synonym-1 (->> (map #(set/rename-keys % {:synonym_1 :synonym :synonym :_}) icd10-combined)
                              (map #(select-keys % [:id :label :source_id :synonym :subClassOf :hasDbXref :dbXref_source])))
         icd10 (concat icd10-synonym icd10-synonym-1)]
-    (->> (filter #(not= (:label %) (:synonym %)) icd10)
+    (->> icd10
          (map #(assoc % :id (str/replace (:id %) #"\." "")))
          distinct
          (kg/write-csv [:id :label :source_id :synonym :subClassOf :hasDbXref :dbXref_source] output-path))))
