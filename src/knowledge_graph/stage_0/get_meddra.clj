@@ -58,7 +58,7 @@
   [meddra-ncit-url meddra-snomed-path snomed-core-path
    stage-0-doid-path stage-0-efo-path
    stage-0-hpo-path stage-0-mondo-path
-   stage-0-orphanet-path stage-0-umls-path]
+   stage-0-orphanet-path]
   (let [meddra-ncit (get-meddra-ncit meddra-ncit-url)
         meddra-snomed (get-meddra-snomed meddra-snomed-path snomed-core-path)
         meddra-doid (get-meddra-from-others stage-0-doid-path "DOID")
@@ -66,16 +66,15 @@
         meddra-hpo (get-meddra-from-others stage-0-hpo-path "HPO")
         meddra-mondo (get-meddra-from-others stage-0-mondo-path "MONDO")
         meddra-orphanet (get-meddra-from-others stage-0-orphanet-path "ORPHANET")
-        meddra-umls (get-meddra-from-others stage-0-umls-path "UMLS")
         meddra-combined (concat meddra-ncit meddra-snomed
                                 meddra-doid meddra-efo
                                 meddra-hpo meddra-mondo
-                                meddra-orphanet meddra-umls)
+                                meddra-orphanet)
         meddra-name-syn (->> meddra-combined
                              (group-by :id)
                              (map #(into {} {:id (first %)
-                                             :label (first (sort (distinct (map (fn [x] (:label x)) (second %)))))
-                                             :synonym (second (sort (distinct (map (fn [x] (:label x)) (second %)))))})))
+                                             :label (first (distinct (map (fn [x] (:label x)) (second %))))
+                                             :synonym (second (distinct (map (fn [x] (:label x)) (second %))))})))
         meddra-name (map #(select-keys % [:id :label]) meddra-name-syn)
         meddra-syn (concat (map #(select-keys % [:id :synonym]) meddra-combined)
                            (->> (map #(select-keys % [:id :synonym]) meddra-name-syn)
@@ -83,7 +82,8 @@
         meddra (-> (->> meddra-combined
                         (map #(select-keys % [:id :source_id :hasDbXref :dbXref_source])))
                    (kg/joiner meddra-name :id :id kg/inner-join)
-                   (kg/joiner meddra-syn :id :id kg/left-join))]
+                   (kg/joiner meddra-syn :id :id kg/left-join)
+                   distinct)]
     meddra))
 
 (def meddra-ncit-url "https://ncit.nci.nih.gov/ncitbrowser/ajax?action=export_maps_to_mapping&target=MedDRA")
@@ -102,7 +102,7 @@
   (->> (create-meddra meddra-ncit-url meddra-snomed-path snomed-core-path
                       stage-0-doid-path stage-0-efo-path
                       stage-0-hpo-path stage-0-mondo-path
-                      stage-0-orphanet-path stage-0-umls-path)
+                      stage-0-orphanet-path)
        (map #(assoc % :subClassOf ""))
        distinct
        (kg/write-csv [:id :label :source_id :subClassOf :hasDbXref :dbXref_source :synonym] output-path)))

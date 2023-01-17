@@ -25,3 +25,5 @@ echo "FINISH RUNNING PIPELINE!"
 echo "CREATE NEO4J GRAPH DATABASE FOR DISEASE MAPPING"
 
 source ./scripts/build_service.sh
+
+exec zsh

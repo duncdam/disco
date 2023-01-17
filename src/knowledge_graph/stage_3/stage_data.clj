@@ -13,8 +13,8 @@
          kg/csv->map
          vec)))
 
-(defn run
-  [_]
+(defn -main
+  []
   (let [diseases (read-file "stage_1_outputs/disease_nodes.csv")
         synonyms (read-file "stage_1_outputs/synonym_nodes.csv")
         altLabel (read-file "stage_2_outputs/altLabel_rel.csv")

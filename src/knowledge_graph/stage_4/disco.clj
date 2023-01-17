@@ -86,22 +86,14 @@
                          (kg/joiner (map #(set/rename-keys % {:id :end_prefLabel_id :name :end_name}) synonyms)
                                     :end_prefLabel_id :end_prefLabel_id
                                     kg/inner-join))
-        related-disco  (->> related-name
-                            (filter #(or (= (:type %) "relatedTo")
-                                         (str/includes? (:start_id %) "PHECODE")
-                                         (str/includes? (:end_id %) "PHECODE")
-                                         (str/includes? (:start_id %) "ICD")
-                                         (str/includes? (:end_id %) "ICD")))
-                            (map #(assoc % :string_similarity (cosine (:start_name %) (:end_name %))))
-                            (filter #(>= (:string_similarity %) 0.75))
-                            (map #(select-keys % [:start_id :start_name :end_id :end_name])))
-        dbXref-disco (->> related-name
-                          (filter #(and (= (:type %) "hasDbXref")
-                                        (not (str/includes? (:start_id %) "PHECODE"))
-                                        (not (str/includes? (:end_id %) "PHECODE"))
-                                        (not (str/includes? (:start_id %) "ICD"))
-                                        (not (str/includes? (:end_id %) "ICD"))))
-                          (map #(select-keys % [:start_id :start_name :end_id :end_name])))
+        dbXref-disco  (->> related-name
+                           (filter #(= (:type %) "hasDbXref"))
+                           (map #(assoc % :string_similarity (cosine (:start_name %) (:end_name %))))
+                           (filter #(>= (:string_similarity %) 0.75))
+                           (map #(select-keys % [:start_id :start_name :end_id :end_name])))
+        related-disco (->> related-name
+                           (filter #(= (:type %) "relatedTo"))
+                           (map #(select-keys % [:start_id :start_name :end_id :end_name])))
         xref-disco (->> (concat related-disco dbXref-disco)
                         (group-by (juxt :start_id))
                         (map #(into {} {:name (str/lower-case (first (sort (distinct (map (fn [x] (:start_name x)) (second %))))))
@@ -191,8 +183,8 @@
             file-path-prefLabel file-path-synonyms
             file-path-diseases file-path-disco-cached))
 
-(defn run
-  [_]
+(defn -main
+  []
   (let [cached-disco (distinct (map #(select-keys % [:id :hash_string]) disco))
         final-disco (->> (map #(select-keys % [:id :name :synonyms]) disco)
                          (map #(assoc % :label "DISCO"))

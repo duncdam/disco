@@ -49,16 +49,16 @@
                               (filter #(not= (second (str/split (:start_id %) #"_")) (second (str/split (:end_id %) #"_")))))]
     joined_hasDbXref))
 
-(def file-path "stage_2_outputs/hasDbXref_rel.csv")
+(def hasDbXref-file-path "stage_2_outputs/hasDbXref_rel.csv")
 (def output-path "./resources/stage_2_outputs/relatedTo_rel.csv")
-(def hasDbXref (load-dbXref file-path))
-(def data-map (-> (concat (create-reference-pair hasDbXref :end_id :start_id)
-                          (create-reference-pair hasDbXref :start_id :end_id))
-                  distinct))
 
 (defn run
   [_]
-  (let [relatedTo-fw (->> data-map
+  (let [hasDbXref (load-dbXref hasDbXref-file-path)
+        data-map (-> (concat (create-reference-pair hasDbXref :start_id :end_id)
+                             (create-reference-pair hasDbXref :end_id :start_id))
+                     distinct)
+        relatedTo-fw (->> data-map
                           (map #(assoc % :start_type (first (str/split (:start_id %) #"_"))))
                           (map #(assoc % :end_type (first (str/split (:end_id %) #"_"))))
                          ;; make sure two terms are from different ontology for relatedTo relationship

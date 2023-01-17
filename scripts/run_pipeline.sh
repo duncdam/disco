@@ -62,7 +62,7 @@ echo "###################################"
 echo "STARTING STAGE 3"
 echo "###################################"
 
-clj -X:stage-3
+clj -M:stage-3
 
 echo "###################################"
 echo "STAGE 3 FINISHED"
@@ -74,7 +74,7 @@ echo "###################################"
 echo "STARTING STAGE 4"
 echo "###################################"
 
-clj -X:disco
+clj -M:disco
 
 echo "###################################"
 echo "STAGE 4 FINISHED"
