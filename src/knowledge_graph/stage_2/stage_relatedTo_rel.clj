@@ -6,7 +6,7 @@
    [clojure.data.csv :as csv]
    [knowledge-graph.module.module :as kg]))
 
-(defn load-dbXref
+(defn load-relationship-file
   [file-path]
   (with-open [file (io/reader (io/resource file-path))]
     (->> (csv/read-csv file :separator \tab)
@@ -23,9 +23,9 @@
   (let [{:keys [start_id end_id]} m]
     (map (fn [x] {:start_id x :end_id end_id}) start_id)))
 
-(defn create-reference-pair
-  [hasDbXref ref-key group-key]
-  (let [hasDbXref (->> hasDbXref
+(defn create-reference-pair-via-hasDbXref
+  [hasDbXref-file-path ref-key group-key]
+  (let [hasDbXref (->> (load-relationship-file hasDbXref-file-path)
                        (group-by :start_id)
                        (map #(into {} {:start_id (first %)
                                        :end_id (map (fn [x] (:end_id x)) (second %))
@@ -49,14 +49,30 @@
                               (filter #(not= (second (str/split (:start_id %) #"_")) (second (str/split (:end_id %) #"_")))))]
     joined_hasDbXref))
 
+(defn create-reference-pair-via-prefLabel
+  [prefLabel-file-path]
+  (let [prefLabel (load-relationship-file prefLabel-file-path)
+        prefLabel-1 (->> prefLabel 
+                         (map #(set/rename-keys % {:end_id :ref}))
+                         (map #(select-keys % [:start_id :ref])))
+        prefLabel-2 (->> prefLabel
+                         (map #(set/rename-keys % {:end_id :ref :start_id :end_id}))
+                         (map #(select-keys % [:ref :end_id])))
+        joined_prefLabel (->> (kg/joiner prefLabel-1 prefLabel-2 :ref :ref kg/inner-join)
+                              (filter #(not= (:start_id %) (:end_id %)))
+                              (filter #(not= (second (str/split (:start_id %) #"_")) (second (str/split (:end_id %) #"_"))))
+                              (map #(select-keys % [:start_id :end_id])))]
+    joined_prefLabel))
+
 (def hasDbXref-file-path "stage_2_outputs/hasDbXref_rel.csv")
+(def prefLabel-file-path "stage_2_outputs/prefLabel_rel.csv")
 (def output-path "./resources/stage_2_outputs/relatedTo_rel.csv")
 
 (defn run
   [_]
-  (let [hasDbXref (load-dbXref hasDbXref-file-path)
-        data-map (-> (concat (create-reference-pair hasDbXref :start_id :end_id)
-                             (create-reference-pair hasDbXref :end_id :start_id))
+  (let [data-map (-> (concat (create-reference-pair-via-hasDbXref hasDbXref-file-path :start_id :end_id)
+                             (create-reference-pair-via-hasDbXref hasDbXref-file-path :end_id :start_id)
+                             (create-reference-pair-via-prefLabel prefLabel-file-path))
                      distinct)
         relatedTo-fw (->> data-map
                           (map #(assoc % :start_type (first (str/split (:start_id %) #"_"))))
@@ -65,7 +81,7 @@
                           (filter #(not= (:start_type %) (:end_type %)))
                           (map #(assoc % :type "relatedTo"))
                           (map #(select-keys % [:start_id :type :end_id])))
-        relatedTo-rel  (->> hasDbXref
+        relatedTo-rel  (->> (load-relationship-file hasDbXref-file-path)
                             (concat relatedTo-fw)
                             (group-by (juxt :start_id :end_id))
                             (map #(into {} {:start_id (first (first %)) :end_id (second (first %)) :type (second %)}))
