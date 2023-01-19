@@ -95,7 +95,7 @@
                            (filter #(= (:type %) "relatedTo"))
                            (map #(select-keys % [:start_id :start_name :end_id :end_name])))
         xref-disco (->> (concat related-disco dbXref-disco)
-                        (group-by (juxt :start_id))
+                        (group-by :start_id)
                         (map #(into {} {:name (str/lower-case (first (sort (distinct (map (fn [x] (:start_name x)) (second %))))))
                                         :synonyms (map (fn [x] (:end_name x)) (second %))
                                         :all (sort (distinct (conj (map (fn [x] (:end_id x)) (second %)) (first (first %)))))}))
