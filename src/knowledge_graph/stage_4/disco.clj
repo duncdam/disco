@@ -58,6 +58,15 @@
     (Float/parseFloat (format "%.2f" (/ (dot-product vector-a vector-b)
                                         (* (calculate-magnitute vector-a) (calculate-magnitute vector-b)))))))
 
+(defn normalize-name
+  [name]
+  (let [processed-name (-> name
+                           str/lower-case
+                           (str/split #" "))]
+    (->> processed-name
+         (remove #{"(finding)" "(disorder)" "(procedure)" "(situation)"})
+         (str/join " "))))
+
 (defn create-disco-codes
   "Create DISCO terms for duplicated terms from different disease ontology"
   [file-path-dbXref file-path-relatedTo file-path-prefLabel file-path-synonyms file-path-diseases file-path-disco-cached]
@@ -95,21 +104,13 @@
                            (filter #(= (:type %) "relatedTo"))
                            (map #(select-keys % [:start_id :start_name :end_id :end_name])))
         xref-disco (->> (concat related-disco dbXref-disco)
-                        (group-by :start_id)
-                        (map #(into {} {:name (str/lower-case (first (sort (distinct (map (fn [x] (:start_name x)) (second %))))))
-                                        :synonyms (map (fn [x] (:end_name x)) (second %))
-                                        :all (sort (distinct (conj (map (fn [x] (:end_id x)) (second %)) (first (first %)))))}))
-                        (map #(assoc % :name (remove #{"(finding)" "(disorder)" "(procedure)" "(situation)"} (str/split (:name %) #" "))))
-                        (map #(assoc % :name (str/join " " (:name %))))
-                        distinct
-                        (group-by :name)
+                        (map #(assoc % :start_name (normalize-name (:start_name %))))
+                        (map #(assoc % :end_name (normalize-name (:end_name %))))
+                        (group-by :start_name)
                         (map #(into {} {:name (first %)
-                                        :dbXref (sort (distinct (apply concat (map (fn [x] (:all x)) (second %)))))
-                                        :synonyms (apply concat (map (fn [x] (:synonyms x)) (second %)))}))
-                        (group-by :dbXref)
-                        (map #(into {} {:dbXref (first %)
-                                        :name (first (sort (map (fn [x] (:name x)) (second %))))
-                                        :synonyms (apply concat (map (fn [x] (:synonyms x)) (second %)))}))
+                                        :synonyms (distinct (map (fn [x] (:end_name x)) (second %)))
+                                        :dbXref (distinct (concat (map (fn [x] (:start_id x)) (second %))
+                                                                  (map (fn [x] (:end_id x)) (second %))))}))
                         (map #(assoc % :synonyms (str/join ";" (distinct (:synonyms %)))))
                         distinct)
         processed-xref-disco (->> xref-disco
@@ -128,14 +129,12 @@
                                                :prefLabel_id :prefLabel_id
                                                kg/inner-join))
                                 (map #(assoc % :dbXref (:id %)))
-                                (map #(assoc % :name (str/lower-case (:name %))))
+                                (map #(assoc % :name (normalize-name (:name %))))
                                 (map #(select-keys % [:name :dbXref]))
                                 (group-by :name)
                                 (map #(into {:name (first %)
                                              :dbXref (map (fn [x] (:dbXref x)) (second %))
                                              :synonyms (map (fn [x] (:name x)) (second %))}))
-                                (map #(assoc % :name (remove #{"(finding)" "(disorder)" "(procedure)" "(situation)"} (str/split (:name %) #" "))))
-                                (map #(assoc % :name (str/join " " (:name %))))
                                 (map #(assoc % :synonyms (str/join ";" (distinct (:synonyms %)))))
                                 distinct)
         processed-disco (->> (concat xref-disco nonxref-disco-name)
